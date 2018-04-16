@@ -9,6 +9,7 @@ const threads = require('./data/threads');
 
 const reply = require('./modules/reply');
 const tags = require('./modules/tags');
+const command = require('./modules/command');
 const close = require('./modules/close');
 const snippets = require('./modules/snippets');
 const logs = require('./modules/logs');
@@ -183,6 +184,7 @@ module.exports = {
     console.log('Loading modules...');
     await reply(bot);
     await tags(bot);
+    await command(bot);
     await close(bot);
     await logs(bot);
     await block(bot);
