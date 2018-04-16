@@ -113,6 +113,15 @@ class Thread {
     const mainRole = utils.getMainRole(moderator);
     const text = `[Command Help: ${command.name}]`;
 
+    if (isAnonymous) {
+      modUsername = (mainRole ? mainRole.name : 'Moderator');
+      logModUsername = `(Anonymous) (${moderator.user.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
+    } else {
+      const name = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
+      modUsername = (mainRole ? `(${mainRole.name}) ${name}` : name);
+      logModUsername = modUsername;
+    }
+
     // Build the reply message
     let threadContent = `**${logModUsername}:** ${text}`;
     let logContent = text;
