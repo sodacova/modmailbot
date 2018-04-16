@@ -144,7 +144,7 @@ bot.on('messageUpdate', async (msg, oldMessage) => {
   }
 });
 
-async function deleteMessage(msg) {
+async function deleteMessage(thread, msg) {
   if (! msg.author) return;
   if (msg.author.bot) return;
   if (! utils.messageIsOnInboxServer(msg)) return;

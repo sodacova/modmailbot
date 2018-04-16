@@ -35,7 +35,7 @@ module.exports = bot => {
     const searchStr = args[0];
     if (! searchStr || searchStr.trim() === '') return;
 
-    const normalizedSearchStr = transliterate.slugify(searchStr);
+    // const normalizedSearchStr = transliterate.slugify(searchStr);
 
     const categories = msg.channel.guild.channels.filter(c => {
       if (config.allowedCategories && config.allowedCategories.length) {
@@ -51,32 +51,37 @@ module.exports = bot => {
 
     if (categories.length === 0) return;
 
-    // See if any category name contains a part of the search string
-    const containsRankings = categories.map(cat => {
-      const normalizedCatName = transliterate.slugify(cat.name);
-
-      let i;
-      for (i = 1; i < normalizedSearchStr.length; i++) {
-        if (! normalizedCatName.includes(normalizedSearchStr.slice(0, i))) {
-          i--;
-          break;
-        }
-      }
-
-      return [cat, i];
-    });
-
-    // Sort by best match
-    containsRankings.sort((a, b) => {
-      return a[1] > b[1] ? -1 : 1;
-    });
-
-    if (containsRankings[0][1] === 0) {
-      thread.postSystemMessage('No matching category');
-      return;
+    const targetCategory = categories.find(c => c.name === searchStr || c.name.startsWith(searchStr));
+    if (! targetCategory) {
+      return thread.postSystemMessage('No matching category.');
     }
 
-    const targetCategory = containsRankings[0][0];
+    // See if any category name contains a part of the search string
+    // const containsRankings = categories.map(cat => {
+    //   const normalizedCatName = transliterate.slugify(cat.name);
+
+    //   let i;
+    //   for (i = 1; i < normalizedSearchStr.length; i++) {
+    //     if (! normalizedCatName.includes(normalizedSearchStr.slice(0, i))) {
+    //       i--;
+    //       break;
+    //     }
+    //   }
+
+    //   return [cat, i];
+    // });
+
+    // // Sort by best match
+    // containsRankings.sort((a, b) => {
+    //   return a[1] > b[1] ? -1 : 1;
+    // });
+
+    // if (containsRankings[0][1] === 0) {
+    //   thread.postSystemMessage('No matching category');
+    //   return;
+    // }
+
+    // const targetCategory = containsRankings[0][0];
     const threadChannel = msg.channel.guild.channels.get(thread.channel_id);
 
     await clearThreadOverwrites(threadChannel);
