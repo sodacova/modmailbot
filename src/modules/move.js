@@ -38,6 +38,13 @@ module.exports = bot => {
     const normalizedSearchStr = transliterate.slugify(searchStr);
 
     const categories = msg.channel.guild.channels.filter(c => {
+      if (config.allowedCategories && config.allowedCategories.length) {
+        if (config.allowedCategories.find(id => id === c.id)) {
+          return true;
+        }
+
+        return false;
+      }
       // Filter to categories that are not the thread's current parent category
       return (c instanceof Eris.CategoryChannel) && (c.id !== msg.channel.parentID);
     });

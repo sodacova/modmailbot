@@ -46,6 +46,8 @@ const defaultConfig = {
   "typingProxy": false,
   "typingProxyReverse": false,
 
+  "allowedCategories": [],
+
   "enableGreeting": false,
   "greetingMessage": null,
   "greetingAttachment": null,
