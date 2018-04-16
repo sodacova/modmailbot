@@ -6,18 +6,21 @@ const transliterate = require("transliteration");
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
-  function clearThreadOverwrites(channel) {
+  async function clearThreadOverwrites(channel) {
     const overwrites = channel.permissionOverwrites;
     if (! overwrites) return;
-    for (let o of overwrites) {
-      channel.deletePermission(o.id, 'Moving modmail thread.');
+    let promises = [];
+    for (let o of overwrites.values()) {
+      promises.push(channel.deletePermission(o.id, 'Moving modmail thread.'));
     }
+
+    return await Promise.all(promises);
   }
 
   function syncThreadChannel(channel, category) {
     const overwrites = category.permissionOverwrites;
     if (! overwrites) return;
-    for (let o of overwrites) {
+    for (let o of overwrites.values()) {
       channel.editPermission(o.id, o.allow || null, o.deny || null, o.type, 'Moving modmail thread.');
     }
   }
@@ -67,7 +70,7 @@ module.exports = bot => {
     const targetCategory = containsRankings[0][0];
     const threadChannel = msg.channel.guild.channels.get(thread.channel_id);
 
-    clearThreadOverwrites(threadChannel);
+    await clearThreadOverwrites(threadChannel);
 
     bot.editChannel(thread.channel_id, {
       parentID: targetCategory.id
