@@ -93,7 +93,10 @@ class Thread {
 
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
-      await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
+      const systemMessage = await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
+      if (systemMessage) {
+        setTimeout(() => systemMessage.delete(), 30000);
+      }
     }
   }
 
@@ -144,11 +147,27 @@ class Thread {
     });
 
     if (this.scheduled_close_at) {
-      await this.cancelScheduledClose();
-      await this.postSystemMessage({
-        content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
-        disableEveryone: false
-      });
+      const now = moment();
+      const closedAt = moment(this.scheduled_close_at);
+
+      let systemMessage;
+
+      if (closedAt.diff(now) <= 30000) {
+        await this.cancelScheduledClose();
+        systemMessage = await this.postSystemMessage({
+          content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
+          disableEveryone: false
+        });
+      } else {
+        systemMessage = await this.postSystemMessage({
+          content: `<@!${this.scheduled_close_id}> The thread was updated, use \`!close cancel\` if you would like to cancel.`,
+          disableEveryone: false
+        });
+      }
+
+      if (systemMessage) {
+        setTimeout(() => systemMessage.delete(), 30000);
+      }
     }
   }
 
@@ -208,6 +227,9 @@ class Thread {
       is_anonymous: 0,
       dm_message_id: msg.id
     });
+
+    // return the message so we can delete it if we want.
+    return msg;
   }
 
   /**
