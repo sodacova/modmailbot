@@ -67,6 +67,7 @@ module.exports = bot => {
 	}
 
 	const embed = {
+                color: 1146534,
 		title: `**Command:** ${prefix}${name}`,
 		description: msgArray.join('\n'),
 	};
