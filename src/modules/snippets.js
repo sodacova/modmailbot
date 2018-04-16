@@ -100,6 +100,7 @@ module.exports = bot => {
     let isAnonymous = snippet.isAnonymous;
 
     if (args[1] === 'anon') {
+      text = args.slice(2).join(' ').trim();
       isAnonymous = true;
     }
 
