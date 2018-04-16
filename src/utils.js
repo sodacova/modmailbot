@@ -70,6 +70,7 @@ function postError(str) {
  */
 function isStaff(member) {
   if (! config.inboxServerPermission) return true;
+  if (! member) return false;
   return member.permission.has(config.inboxServerPermission);
 }
 
