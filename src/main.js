@@ -82,6 +82,26 @@ bot.on('messageCreate', async msg => {
       // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
       if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
+      if (config.ignoredPrefixes && msg.content) {
+        for (let pref of config.ignoredPrefixes) {
+          if (! msg.content.startsWith(pref)) continue;
+          // return if we don't want to auto respond
+          if (! config.ignoredPrefixAutorespond) return;
+          // respond and return if the message starts with an ignored prefix
+          return msg.channel.createMessage(config.ignoredPrefixResponse);
+        }
+      }
+
+      if (config.ignoredWords && msg.content) {
+        for (let word of config.ignoredWords) {
+          if (! msg.content.toLowerCase().startsWith(word.toLowerCase())) continue;
+          // return if we don't want to auto respond
+          if (! config.ignoredWordAutorespond) return;
+          // respond and return if the message starts with an ignored
+          return msg.channel.createMessage(config.ignoredWordResponse);
+        }
+      }
+
       thread = await threads.createNewThreadForUser(msg.author);
     }
 
