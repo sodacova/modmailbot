@@ -78,4 +78,6 @@ module.exports = bot => {
 
     thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}`);
   });
+
+  bot.registerCommandAlias('m', 'move');
 };
