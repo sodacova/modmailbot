@@ -36,7 +36,7 @@ module.exports = bot => {
 
     const snippet = await snippets.get(trigger);
     let text = args.slice(1).join(' ').trim();
-    let isAnonymous = config.snippetDefaultAnon || false;
+    let isAnonymous = config.snippetAnonDefault || false;
 
     if (args[1] === 'anon') {
       text = args.slice(2).join(' ').trim();

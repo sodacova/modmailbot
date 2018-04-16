@@ -1,4 +1,5 @@
 const attachments = require("../data/attachments");
+const config = require('../config');
 const threadUtils = require("../threadUtils");
 
 module.exports = bot => {
@@ -10,8 +11,14 @@ module.exports = bot => {
     if (! thread) return;
 
     const text = args.join(' ').trim();
+    let isAnonymous = false;
+
+    if (config.replyAnonDefault === true) {
+      isAnonymous = true;
+    }
+
     if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-    await thread.replyToUser(msg.member, text, msg.attachments, false);
+    await thread.replyToUser(msg.member, text, msg.attachments, isAnonymous);
     msg.delete();
   });
 
