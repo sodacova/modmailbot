@@ -6,6 +6,25 @@ const transliterate = require("transliteration");
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
+  async function clearThreadOverwrites(channel) {
+    const overwrites = channel.permissionOverwrites;
+    if (! overwrites) return;
+    let promises = [];
+    for (let o of overwrites.values()) {
+      promises.push(channel.deletePermission(o.id, 'Moving modmail thread.'));
+    }
+
+    return await Promise.all(promises);
+  }
+
+  function syncThreadChannel(channel, category) {
+    const overwrites = category.permissionOverwrites;
+    if (! overwrites) return;
+    for (let o of overwrites.values()) {
+      channel.editPermission(o.id, o.allow || null, o.deny || null, o.type, 'Moving modmail thread.');
+    }
+  }
+
   addInboxServerCommand('move', async (msg, args, thread) => {
     if (! config.allowMove) return;
 
@@ -49,10 +68,13 @@ module.exports = bot => {
     }
 
     const targetCategory = containsRankings[0][0];
+    const threadChannel = msg.channel.guild.channels.get(thread.channel_id);
 
-    await bot.editChannel(thread.channel_id, {
+    await clearThreadOverwrites(threadChannel);
+
+    bot.editChannel(thread.channel_id, {
       parentID: targetCategory.id
-    });
+    }).then(channel => syncThreadChannel(threadChannel, targetCategory));
 
     thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}`);
   });
