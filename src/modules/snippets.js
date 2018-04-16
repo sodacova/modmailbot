@@ -34,11 +34,20 @@ module.exports = bot => {
     const trigger = args[0];
     if (! trigger) return
 
-    const text = args.slice(1).join(' ').trim();
     const snippet = await snippets.get(trigger);
+    let text = args.slice(1).join(' ').trim();
+    let isAnonymous = config.snippetDefaultAnon || false;
+
+    if (args[1] === 'anon') {
+      text = args.slice(2).join(' ').trim();
+      isAnonymous = true;
+    }
 
     if (snippet) {
-      if (text) {
+      if (args[1] === 'raw') {
+        // Post the raw snippet in a codeblock if it exists.
+        utils.postSystemMessageWithFallback(msg.channel, thread, `\`${config.snippetPrefix}${trigger}\` replies ${snippet.is_anonymous ? 'anonymously ' : ''}with:\n\`\`\`\n${snippet.body}\`\`\``);
+      } else if (text) {
         // If the snippet exists and we're trying to create a new one, inform the user the snippet already exists
         utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${trigger}" already exists! You can edit or delete it with ${config.prefix}edit_snippet and ${config.prefix}delete_snippet respectively.`);
       } else {
@@ -48,7 +57,7 @@ module.exports = bot => {
     } else {
       if (text) {
         // If the snippet doesn't exist and the user wants to create it, create it
-        await snippets.add(trigger, text, false);
+        await snippets.add(trigger, text, isAnonymous);
         utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${trigger}" created!`);
       } else {
         // If the snippet doesn't exist and the user isn't trying to create it, inform them how to create it
@@ -79,17 +88,23 @@ module.exports = bot => {
     const trigger = args[0];
     if (! trigger) return;
 
-    const text = args.slice(1).join(' ').trim();
+    let text = args.slice(1).join(' ').trim();
     if (! text) return;
-
+    
     const snippet = await snippets.get(trigger);
     if (! snippet) {
       utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${trigger}" doesn't exist!`);
       return;
     }
 
+    let isAnonymous = snippet.isAnonymous;
+
+    if (args[1] === 'anon') {
+      isAnonymous = true;
+    }
+
     await snippets.del(trigger);
-    await snippets.add(trigger, text, snippet.isAnonymous);
+    await snippets.add(trigger, text, isAnonymous);
 
     utils.postSystemMessageWithFallback(msg.channel, thread, `Snippet "${trigger}" edited!`);
   });

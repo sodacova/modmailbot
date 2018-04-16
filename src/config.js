@@ -17,6 +17,8 @@ const defaultConfig = {
   "prefix": "!",
   "snippetPrefix": "!!",
 
+  "snippetDefaultAnon": false,
+
   "status": "Message me for help!",
   "responseMessage": "Thank you for your message! Our mod team will reply to you here as soon as possible.",
 
