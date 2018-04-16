@@ -11,6 +11,7 @@ module.exports = bot => {
     if (! overwrites) return;
     let promises = [];
     for (let o of overwrites.values()) {
+      if (o.id === channel.guild.id) continue;
       promises.push(channel.deletePermission(o.id, 'Moving modmail thread.'));
     }
 
@@ -21,6 +22,7 @@ module.exports = bot => {
     const overwrites = category.permissionOverwrites;
     if (! overwrites) return;
     for (let o of overwrites.values()) {
+      if (o.id === channel.guild.id) continue;
       channel.editPermission(o.id, o.allow || null, o.deny || null, o.type, 'Moving modmail thread.');
     }
   }
