@@ -101,6 +101,59 @@ class Thread {
   }
 
   /**
+   * @param {Eris~Member} moderator
+   * @param {String} text
+   * @param {Eris~MessageFile[]} replyAttachments
+   * @param {Boolean} isAnonymous
+   * @returns {Promise<void>}
+   */
+  async sendCommandToUser(moderator, message, command, isAnonymous = false) {
+    // Username to reply with
+    let modUsername, logModUsername;
+    const mainRole = utils.getMainRole(moderator);
+    const text = `[Command Help: ${command.name}]`;
+
+    // Build the reply message
+    let threadContent = `**${logModUsername}:** ${text}`;
+    let logContent = text;
+
+    if (config.threadTimestamps) {
+      const timestamp = utils.getTimestamp();
+      threadContent = `[${timestamp}] » ${threadContent}`;
+    }
+
+    // Send the reply DM
+    let dmMessage;
+    try {
+      dmMessage = await this.postToUser(message);
+    } catch (e) {
+      await this.postSystemMessage(`Error while replying to user: ${e.message}`);
+      return;
+    }
+
+    // Send the reply to the modmail thread
+    await this.postToThreadChannel(threadContent);
+
+    // Add the message to the database
+    await this.addThreadMessageToDB({
+      message_type: THREAD_MESSAGE_TYPE.TO_USER,
+      user_id: moderator.id,
+      user_name: logModUsername,
+      body: logContent,
+      is_anonymous: (isAnonymous ? 1 : 0),
+      dm_message_id: dmMessage.id
+    });
+
+    if (this.scheduled_close_at) {
+      await this.cancelScheduledClose();
+      const systemMessage = await this.postSystemMessage(`Cancelling scheduled closing of this thread due to new reply`);
+      if (systemMessage) {
+        setTimeout(() => systemMessage.delete(), 30000);
+      }
+    }
+  }
+
+  /**
    * @param {Eris~Message} msg
    * @returns {Promise<void>}
    */

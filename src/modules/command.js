@@ -100,7 +100,7 @@ module.exports = bot => {
 
 	if (! embed) return;
 
-    await thread.replyToUser(msg.member, { embed }, [], isAnonymous);
+    await thread.sendCommandToUser(msg.member, { embed }, [], isAnonymous);
     msg.delete();
   });
 
