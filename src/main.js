@@ -144,19 +144,34 @@ bot.on('messageUpdate', async (msg, oldMessage) => {
   }
 });
 
-/**
- * When a staff message is deleted in a modmail thread, delete it from the database as well
- */
-bot.on('messageDelete', async msg => {
+async function deleteMessage(msg) {
   if (! msg.author) return;
   if (msg.author.bot) return;
   if (! utils.messageIsOnInboxServer(msg)) return;
   if (! utils.isStaff(msg.member)) return;
 
+  thread.deleteChatMessage(msg.id);
+}
+
+/**
+ * When a staff message is deleted in a modmail thread, delete it from the database as well
+ */
+bot.on('messageDelete', async msg => {
   const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
   if (! thread) return;
 
-  thread.deleteChatMessage(msg.id);
+  deleteMessage(thread, msg);
+});
+
+bot.on('messageDeleteBulk', async messages => {
+  const channel = messages[0].channel;
+
+  const thread = await threads.findOpenThreadByChannelId(channel.id);
+  if (! thread) return;
+
+  for (let msg of messages) {
+    deleteMessage(thread, msg);
+  }
 });
 
 /**
