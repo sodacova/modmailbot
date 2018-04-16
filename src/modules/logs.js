@@ -43,7 +43,7 @@ module.exports = bot => {
 
     if (args.length > 0) {
       if (args[0] === 'delete') {
-        const userId = utils.getUserMention(args.join(' '));
+        const userId = utils.getUserMention(args.slice(1).join(' '));
         if (! userId) return;
 
         if (! config.inboxAdminRoleId) {

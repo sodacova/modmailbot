@@ -230,6 +230,7 @@ module.exports = {
   findSuspendedThreadByChannelId,
   createNewThreadForUser,
   getClosedThreadsByUserId,
+  deleteClosedThreadsByUserId,
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
   createThreadInDB
