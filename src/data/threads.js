@@ -183,6 +183,13 @@ async function getClosedThreadsByUserId(userId) {
   return threads.map(thread => new Thread(thread));
 }
 
+async function deleteClosedThreadsByUserId(userId) {
+  await knex('threads')
+      .where('status', THREAD_STATUS.CLOSED)
+      .where('user_id', userId)
+      .delete();
+}
+
 /**
  * @param {String} userId
  * @returns {Promise<number>}

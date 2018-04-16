@@ -1,6 +1,7 @@
 const threadUtils = require('../threadUtils');
 const threads = require("../data/threads");
 const moment = require('moment');
+const config = require('../config');
 const utils = require("../utils");
 
 module.exports = bot => {
@@ -35,7 +36,25 @@ module.exports = bot => {
       });
     }
 
+    async function deleteLogs(userId) {
+      return await threads.deleteClosedThreadsByUserId(userId);
+      msg.channel.createMessage(`Deleted log files for <@!${userId}>`);
+    }
+
     if (args.length > 0) {
+      if (args[0] === 'delete') {
+        const userId = utils.getUserMention(args.join(' '));
+        if (! userId) return;
+
+        if (! config.inboxAdminRoleId) {
+          return;
+        }
+
+        if (msg.member.roles && msg.member.roles.includes(config.inboxAdminRoleId)) {
+          deleteLogs(userId);
+        }
+      }
+
       // User mention/id as argument
       const userId = utils.getUserMention(args.join(' '));
       if (! userId) return;

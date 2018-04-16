@@ -27,6 +27,8 @@ const defaultConfig = {
   "mentionRole": "here",
 
   "inboxServerPermission": null,
+  "inboxServerRoleId": null,
+  "inboxAdminRoleId": null,
   "alwaysReply": false,
   "alwaysReplyAnon": false,
   "useNicknames": false,
