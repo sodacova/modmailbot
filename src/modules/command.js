@@ -87,7 +87,7 @@ module.exports = bot => {
       isAnonymous = true;
     }
 
-    const resolvedCommand = await tags.getCommand(cmd);
+    const resolvedCommand = await commands.getCommand(cmd);
 	if (! resolvedCommand) return;
 
 	let embed;
