@@ -51,7 +51,7 @@ module.exports = bot => {
 
     if (categories.length === 0) return;
 
-    const targetCategory = categories.find(c => c.name === searchStr || c.name.startsWith(searchStr));
+    const targetCategory = categories.find(c => c.name.toLowerCase() === searchStr.toLowerCase() || c.name.toLowerCase().startsWith(searchStr.toLowerCase()));
     if (! targetCategory) {
       return thread.postSystemMessage('No matching category.');
     }
