@@ -124,7 +124,7 @@ bot.on('messageCreate', async msg => {
               text = `^${utils.regEscape(match)}$`;
             }
       
-            return content.match(new RegExp(text, 'i'));
+            return msg.content.match(new RegExp(text, 'i'));
           }
 
           if (Array.isArray(o.match)) {

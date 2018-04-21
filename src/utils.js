@@ -265,7 +265,7 @@ function setDataModelProps(target, props) {
   }
 }
 
-regEscape(str) {
+function regEscape(str) {
   return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
