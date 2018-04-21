@@ -48,6 +48,8 @@ const defaultConfig = {
 
   "allowedCategories": [],
 
+  "autoResponses": [],
+
   "enableGreeting": false,
   "greetingMessage": null,
   "greetingAttachment": null,

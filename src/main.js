@@ -103,6 +103,29 @@ bot.on('messageCreate', async msg => {
         }
       }
 
+      if (config.autoResponses && config.autoResponses.length && msg.content) {
+        const result = config.autoResponses.filter(o => o).find(o => {
+          let text;
+
+          if (o.matchStart) {
+            if (! msg.content.toLowerCase().startsWith(o.match.toLowerCase())) return false;
+            return true;
+          }
+    
+          if (o.wildcard) {
+            text = `.*${utils.regEscape(o.match)}.*`;
+          } else {
+            text = `^${utils.regEscape(o.match)}$`;
+          }
+    
+          return content.match(new RegExp(text, 'i'));
+        });
+
+        if (result) {
+          return msg.channel.createMessage(result.response);
+        }
+      }
+
       thread = await threads.createNewThreadForUser(msg.author);
     }
 

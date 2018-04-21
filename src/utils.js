@@ -265,6 +265,10 @@ function setDataModelProps(target, props) {
   }
 }
 
+regEscape(str) {
+  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 module.exports = {
   BotError,
 
@@ -293,4 +297,6 @@ module.exports = {
   trimAll,
 
   setDataModelProps,
+
+  regEscape,
 };
