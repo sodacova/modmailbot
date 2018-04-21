@@ -105,20 +105,30 @@ bot.on('messageCreate', async msg => {
 
       if (config.autoResponses && config.autoResponses.length && msg.content) {
         const result = config.autoResponses.filter(o => o).find(o => {
-          let text;
+          const doesMatch = (o, match) => {
+            let text;
 
-          if (o.matchStart) {
-            if (! msg.content.toLowerCase().startsWith(o.match.toLowerCase())) return false;
-            return true;
+            if (o.matchStart) {
+              if (! msg.content.toLowerCase().startsWith(match.toLowerCase())) return false;
+              return true;
+            }
+      
+            if (o.wildcard) {
+              text = `.*${utils.regEscape(match)}.*`;
+            } else {
+              text = `^${utils.regEscape(match)}$`;
+            }
+      
+            return content.match(new RegExp(text, 'i'));
           }
-    
-          if (o.wildcard) {
-            text = `.*${utils.regEscape(o.match)}.*`;
+
+          if (Array.isArray(o.match)) {
+            for (let m of o.match) {
+              if (doesMatch(o, m)) return true;
+            }
           } else {
-            text = `^${utils.regEscape(o.match)}$`;
+            return doesMatch(o, o.match);
           }
-    
-          return content.match(new RegExp(text, 'i'));
         });
 
         if (result) {
