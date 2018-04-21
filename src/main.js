@@ -83,6 +83,11 @@ bot.on('messageCreate', async msg => {
       // Ignore messages that shouldn't usually open new threads, such as "ok", "thanks", etc.
       if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
+      if (config.ignoreNonAlphaMessages && msg.content) {
+        const content = msg.content.replace(/[^a-zA-Z]/g);
+        if (! content || ! content.length) return;
+      }
+
       if (config.ignoredPrefixes && msg.content) {
         for (let pref of config.ignoredPrefixes) {
           if (! msg.content.startsWith(pref)) continue;

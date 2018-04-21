@@ -30,6 +30,7 @@ const defaultConfig = {
 
   "ignoredWordAutorespond": false,
   "ignoredPrefixAutorespond": false,
+  "ignoreNonAlphaMessages": false,
 
   "newThreadCategoryId": null,
   "mentionRole": "here",
