@@ -20,6 +20,11 @@ module.exports = bot => {
 
 		let messages = await bot.getMessages(channel.id, 100);
 		messages = messages.filter(m => m.author.id === bot.user.id).map(m => m.id);
+
+		if (args.length > 0 && ! isNaN(args[0])) {
+			messages = messages.slice(0, parseInt(args[0], 10));
+		}
+
 		if (messages && messages.length) {
 			try {
 				for (let id of messages) {
