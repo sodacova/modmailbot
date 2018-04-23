@@ -1,5 +1,6 @@
 const threadUtils = require('../threadUtils');
 const blocked = require("../data/blocked");
+const config = require('../config');
 const utils = require("../utils");
 
 module.exports = bot => {
@@ -12,7 +13,7 @@ module.exports = bot => {
       msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
     }
 
-    if (args.length > 0) {
+    if (!thread && args.length > 0) {
       // User mention/id as argument
       const userId = utils.getUserMention(args.join(' '));
       if (! userId) return;
@@ -27,7 +28,7 @@ module.exports = bot => {
       }
 
       let text = `You have been blocked.`;
-      let logText = logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked.`;
+      let logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked.`;
 
       if (reason && reason.length) {
         text = `You have been blocked for ${reason}`;
