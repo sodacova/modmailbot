@@ -5,7 +5,7 @@ const utils = require("../utils");
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
-  addInboxServerCommand('block', (msg, args, thread) => {
+  addInboxServerCommand('block', async (msg, args, thread) => {
     async function block(userId) {
       const user = bot.users.get(userId);
       await blocked.block(userId, (user ? `${user.username}#${user.discriminator}` : ''), msg.author.id);
@@ -16,8 +16,29 @@ module.exports = bot => {
       // User mention/id as argument
       const userId = utils.getUserMention(args.join(' '));
       if (! userId) return;
+
       block(userId);
     } else if (thread) {
+      const reason = args.join(' ').trim();
+      let isAnonymous = false;
+
+      if (config.replyAnonDefault === true) {
+        isAnonymous = true;
+      }
+
+      let text = `You have been blocked.`;
+      let logText = logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked.`;
+
+      if (reason && reason.length) {
+        text = `You have been blocked for ${reason}`;
+        logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
+      }
+
+      if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
+      await thread.replyToUser(msg.member, text, msg.attachments, isAnonymous);
+
+      utils.postLog(logText);
+
       // Calling !block without args in a modmail thread blocks the user of that thread
       block(thread.user_id);
     }
