@@ -13,10 +13,20 @@ module.exports = bot => {
       msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
     }
 
-    if (!thread && args.length > 0) {
+    let logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked.`;
+
+    if (! thread && args.length > 0) {
       // User mention/id as argument
       const userId = utils.getUserMention(args.join(' '));
       if (! userId) return;
+
+      const reason = args.slice(1).join(' ').trim();
+
+      if (reason && reason.length) {
+        logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
+      }
+
+      utils.postLog(logText);
 
       block(userId);
     } else if (thread) {
@@ -28,7 +38,6 @@ module.exports = bot => {
       }
 
       let text = `You have been blocked.`;
-      let logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked.`;
 
       if (reason && reason.length) {
         text = `You have been blocked for ${reason}`;
@@ -51,12 +60,31 @@ module.exports = bot => {
       msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
     }
 
-    if (args.length > 0) {
+    let logText = `**Unblocked: ** ${thread.user_name} (${thread.user_id}) was unblocked.`;
+
+    if (! thread && args.length > 0) {
       // User mention/id as argument
       const userId = utils.getUserMention(args.join(' '));
       if (! userId) return;
+
+      const reason = args.slice(1).join(' ').trim();
+
+      if (reason && reason.length) {
+        logText = `**Unblocked: ** ${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
+      }
+
+      utils.postLog(logText);
+
       unblock(userId);
     } else if (thread) {
+      const reason = args.join(' ').trim();
+
+      if (reason && reason.length) {
+        logText = `**Unblocked: ** ${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
+      }
+
+      utils.postLog(logText);
+
       // Calling !unblock without args in a modmail thread unblocks the user of that thread
       unblock(thread.user_id);
     }
