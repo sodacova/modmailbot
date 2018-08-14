@@ -132,7 +132,7 @@ function getUserMention(str) {
  * @returns {String}
  */
 function getTimestamp(...momentArgs) {
-  return moment.utc(...momentArgs).format('HH:mm');
+  return moment.utc(...momentArgs).format('[Today] [at] hh:mm A');
 }
 
 /**

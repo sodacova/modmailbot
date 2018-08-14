@@ -32,19 +32,19 @@ const defaultConfig = {
   "ignoredPrefixAutorespond": false,
   "ignoreNonAlphaMessages": false,
 
-  "newThreadCategoryId": null,
-  "mentionRole": "here",
+  "newThreadCategoryId": "468022413859225610",
+  "mentionRole": "",
 
   "inboxServerPermission": null,
   "inboxServerRoleId": null,
   "inboxAdminRoleId": null,
   "alwaysReply": false,
-  "alwaysReplyAnon": false,
+  "alwaysReplyAnon": true,
   "useNicknames": false,
   "ignoreAccidentalThreads": false,
-  "threadTimestamps": false,
-  "allowMove": false,
-  "typingProxy": false,
+  "threadTimestamps": true,
+  "allowMove": true,
+  "typingProxy": true,
   "typingProxyReverse": false,
 
   "allowedCategories": [],
@@ -66,6 +66,8 @@ const defaultConfig = {
   "knex": null,
 
   "logDir": path.join(__dirname, '..', 'logs'),
+
+  "dataFactory": false
 };
 
 const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];

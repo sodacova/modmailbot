@@ -1,4 +1,5 @@
 const Eris = require('eris');
+const SSE = require('express-sse');
 
 const config = require('./config');
 const bot = require('./bot');
@@ -22,16 +23,34 @@ const greeting = require('./modules/greeting');
 const typingProxy = require('./modules/typingProxy');
 const version = require('./modules/version');
 const newthread = require('./modules/newthread');
+const notes = require('./modules/notes');
+const idcmd = require('./modules/id');
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
 
 const messageQueue = new Queue();
+const sse = new SSE();
 
 // Once the bot has connected, set the status/"playing" message
 bot.on('ready', () => {
   bot.editStatus(null, {name: config.status});
   console.log('Connected! Now listening to DMs.');
+  let guild = bot.guilds.get(config.mainGuildId)
+  let roles = []
+  let users = []
+  let channels = []
+  for (let role of guild.roles.values())
+    roles.push({ id: role.id, name: role.name, color: role.color })
+  for (let member of guild.members.values())
+    users.push({ id: member.id, name: member.username, discrim: member.discriminator })
+  for (let channel of guild.channels.values())
+    channels.push({ id: channel.id, name: channel.name })
+  sse.updateInit({
+    roles: roles,
+    users: users,
+    channels: channels
+  })
 });
 
 /**
@@ -55,7 +74,7 @@ bot.on('messageCreate', async msg => {
     if (! utils.isStaff(msg.member)) return; // Only staff are allowed to reply
 
     if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
-    await thread.replyToUser(msg.member, msg.content.trim(), msg.attachments, config.alwaysReplyAnon || false);
+    await thread.replyToUser(msg.member, msg.content.trim(), msg.attachments, config.alwaysReplyAnon || false, sse);
     msg.delete();
   } else {
     // Otherwise just save the messages as "chat" in the logs
@@ -75,6 +94,7 @@ bot.on('messageCreate', async msg => {
 
   if (await blocked.isBlocked(msg.author.id)) return;
 
+  if (msg.content.length > 1600) return msg.channel.createMessage(`Your message is too long to be recieved by Dave. (${msg.content.length}/1600)`)
   // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
   messageQueue.add(async () => {
     let thread = await threads.findOpenThreadByUserId(msg.author.id);
@@ -143,9 +163,11 @@ bot.on('messageCreate', async msg => {
       }
 
       thread = await threads.createNewThreadForUser(msg.author);
+
+      sse.send({ thread }, 'threadOpen')
     }
 
-    await thread.receiveUserReply(msg);
+    await thread.receiveUserReply(msg, sse);
   });
 });
 
@@ -236,21 +258,23 @@ module.exports = {
   async start() {
     // Load modules
     console.log('Loading modules...');
-    await reply(bot);
+    await reply(bot, sse);
     await purge(bot);
     await tags(bot);
     await command(bot);
-    await close(bot);
+    await close(bot, sse);
     await logs(bot);
     await block(bot);
     await move(bot);
     await snippets(bot);
     await suspend(bot);
+    await notes(bot);
     await greeting(bot);
-    await webserver(bot);
+    await webserver(bot, sse);
     await typingProxy(bot);
     await version(bot);
-    await newthread(bot);
+    await newthread(bot, sse);
+    await idcmd(bot)
 
     // Connect to Discord
     console.log('Connecting to Discord...');

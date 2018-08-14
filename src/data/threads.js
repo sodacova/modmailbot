@@ -8,9 +8,10 @@ const bot = require('../bot');
 const knex = require('../knex');
 const config = require('../config');
 const utils = require('../utils');
+const notes = require('../data/notes')
 
 const Thread = require('./Thread');
-const {THREAD_STATUS} = require('./constants');
+const { THREAD_STATUS } = require('./constants');
 
 /**
  * @param {String} id
@@ -88,7 +89,7 @@ async function createNewThreadForUser(user, quiet = false) {
         disableEveryone: false
       });
     }
-
+    
     // Send auto-reply to the user
     if (config.responseMessage) {
       newThread.postToUser(config.responseMessage);
@@ -101,15 +102,22 @@ async function createNewThreadForUser(user, quiet = false) {
   if (! member) console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
 
   let mainGuildNickname = null;
-  if (member && member.nick) mainGuildNickname = member.nick;
-  else if (member && member.user) mainGuildNickname = member.user.username;
-  else if (member == null) mainGuildNickname = 'NOT ON SERVER';
 
-  if (mainGuildNickname == null) mainGuildNickname = 'UNKNOWN';
+  if(member && member.nick) mainGuildNickname = member.nick
+  else if(member && ! member.nick) mainGuildNickname = member.username
+  else if(! member) mainGuildNickname = 'An unknown user'
 
   const userLogCount = await getClosedThreadCountByUserId(user.id);
   const accountAge = humanizeDuration(Date.now() - user.createdAt, {largest: 2});
-  const infoHeader = `ACCOUNT AGE **${accountAge}**, ID **${user.id}**, NICKNAME **${mainGuildNickname}**, LOGS **${userLogCount}**\n-------------------------------`;
+  let displayNote;
+  let userNotes = await notes.get(user.id)
+  if (userNotes && userNotes.length) {
+    let note = userNotes.slice(-1)[0];
+    displayNote = `**Note:** ${note.note}\n`;
+  } else
+    displayNote = '';
+  const infoHeader = `NAME **${mainGuildNickname}**\nMENTION ${member.mention}\nID **${user.id}**\nACCOUNT AGE **${accountAge}**\n`
+    + `LOGS **${userLogCount}**\n${displayNote}────────────────────────────────`;
 
   await newThread.postSystemMessage(infoHeader);
 
@@ -233,5 +241,5 @@ module.exports = {
   deleteClosedThreadsByUserId,
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
-  createThreadInDB
+    createThreadInDB
 };

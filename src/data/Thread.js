@@ -12,6 +12,7 @@ const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require('./constants');
 
 /**
  * @property {String} id
+ * @property {Boolean} closed
  * @property {Number} status
  * @property {String} user_id
  * @property {String} user_name
@@ -33,14 +34,14 @@ class Thread {
    * @param {Boolean} isAnonymous
    * @returns {Promise<void>}
    */
-  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false) {
+  async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false, sse) {
     // Username to reply with
     let modUsername, logModUsername;
     const mainRole = utils.getMainRole(moderator);
 
     if (isAnonymous) {
-      modUsername = (mainRole ? mainRole.name : 'Moderator');
-      logModUsername = `(Anonymous) (${moderator.user.username}) ${mainRole ? mainRole.name : 'Moderator'}`;
+      modUsername = (mainRole ? mainRole.name : 'Staff');
+      logModUsername = `(${moderator.user.username}) ${mainRole ? mainRole.name : 'Staff'}`;
     } else {
       const name = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
       modUsername = (mainRole ? `(${mainRole.name}) ${name}` : name);
@@ -54,7 +55,7 @@ class Thread {
 
     if (config.threadTimestamps) {
       const timestamp = utils.getTimestamp();
-      threadContent = `[${timestamp}] » ${threadContent}`;
+      threadContent = `[**${timestamp}**] » ${threadContent}`;
     }
 
     // Prepare attachments, if any
@@ -89,7 +90,7 @@ class Thread {
       body: logContent,
       is_anonymous: (isAnonymous ? 1 : 0),
       dm_message_id: dmMessage.id
-    });
+    }, sse);
 
     if (this.scheduled_close_at) {
       await this.cancelScheduledClose();
@@ -166,7 +167,7 @@ class Thread {
    * @param {Eris~Message} msg
    * @returns {Promise<void>}
    */
-  async receiveUserReply(msg) {
+  async receiveUserReply(msg, sse) {
     let content = msg.content;
     if (msg.content.trim() === '' && msg.embeds.length) {
       content = '<message contains embeds>';
@@ -177,7 +178,7 @@ class Thread {
 
     if (config.threadTimestamps) {
       const timestamp = utils.getTimestamp(msg.timestamp, 'x');
-      threadContent = `[${timestamp}] « ${threadContent}`;
+      threadContent = `[**${timestamp}**] « ${threadContent}`;
     }
 
     // Prepare attachments, if any
@@ -206,7 +207,7 @@ class Thread {
       body: logContent,
       is_anonymous: 0,
       dm_message_id: msg.id
-    });
+    }, sse);
 
     if (this.scheduled_close_at) {
       const now = moment();
@@ -306,7 +307,7 @@ class Thread {
    * @param {Eris.Message} msg
    * @returns {Promise<void>}
    */
-  async saveChatMessage(msg) {
+  async saveChatMessage(msg, sse) {
     return this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.CHAT,
       user_id: msg.author.id,
@@ -314,10 +315,10 @@ class Thread {
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id
-    });
+    }, sse);
   }
 
-  async saveCommandMessage(msg) {
+  async saveCommandMessage(msg, sse) {
     return this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.COMMAND,
       user_id: msg.author.id,
@@ -325,7 +326,7 @@ class Thread {
       body: msg.content,
       is_anonymous: 0,
       dm_message_id: msg.id
-    });
+    }, sse);
   }
 
   /**
@@ -356,13 +357,20 @@ class Thread {
    * @param {Object} data
    * @returns {Promise<void>}
    */
-  async addThreadMessageToDB(data) {
-    await knex('thread_messages').insert({
+  async addThreadMessageToDB(data, sse) {
+    let threadMessage = {
       thread_id: this.id,
       created_at: moment.utc().format('YYYY-MM-DD HH:mm:ss'),
       is_anonymous: 0,
       ...data
-    });
+    }
+    await knex('thread_messages').insert(threadMessage);
+    
+    if (sse) {
+      sse.send({
+        message: threadMessage
+      }, 'newMessage')
+    }
   }
 
   /**
@@ -381,18 +389,38 @@ class Thread {
   /**
    * @returns {Promise<void>}
    */
-  async close(silent = false) {
+  async close(author, silent = false, sse) {
     if (! silent) {
       console.log(`Closing thread ${this.id}`);
       await this.postToThreadChannel('Closing thread...');
     }
-
+    
+    if(! author) {
+      let newThread = await knex('threads')
+        .where('id', this.id)
+        .first();
+      author = {
+        id: newThread.scheduled_close_id,
+        username: newThread.scheduled_close_name.split('#').slice(0, -1).join('#'),
+        discriminator: newThread.scheduled_close_name.split('#').slice(-1)[0],
+      }
+    }
     // Update DB status
     await knex('threads')
       .where('id', this.id)
       .update({
-        status: THREAD_STATUS.CLOSED
+        status: THREAD_STATUS.CLOSED,
+        scheduled_close_at: moment().utc().format('YYYY-MM-DD HH:mm:ss'),
+        scheduled_close_id: author.id,
+        scheduled_close_name: `${author.username}#${author.discriminator}`
       });
+
+    if (sse)
+      sse.send({
+        thread: await knex('threads')
+          .where('id', this.id)
+          .first()
+      }, 'threadClose')
 
     // Delete channel
     const channel = bot.getChannel(this.channel_id);
@@ -413,7 +441,7 @@ class Thread {
       .update({
         scheduled_close_at: time,
         scheduled_close_id: user.id,
-        scheduled_close_name: user.username
+        scheduled_close_name: `${user.username}#${user.discriminator}`
       });
   }
 
@@ -456,7 +484,7 @@ class Thread {
    * @returns {Promise<String>}
    */
   getLogUrl() {
-    return utils.getSelfUrl(`logs/${this.id}`);
+    return utils.getSelfUrl(`#thread:${this.id}`);
   }
 }
 
