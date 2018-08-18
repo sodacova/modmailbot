@@ -9,6 +9,14 @@ exports.up = async function(knex, Promise) {
     table.dateTime('created_at').notNullable().index();
   });
 
+  await knex.schema.createTableIfNotExists('notes', table => {
+    table.string('user_id', 20).notNullable().primary().index();
+    table.text('note').notNullable().primary();
+    table.string('created_by_id', 20).notNullable();
+    table.string('created_by_name', 128).notNullable();
+    table.dateTime('created_at').notNullable();
+  })
+
   await knex.schema.createTableIfNotExists('thread_messages', table => {
     table.increments('id');
     table.string('thread_id', 36).notNullable().index().references('id').inTable('threads').onDelete('CASCADE');

@@ -1,4 +1,3 @@
-const commands = require('../data/commands');
 const config = require('../config');
 const utils = require('../utils');
 const threadUtils = require('../threadUtils');
@@ -67,7 +66,7 @@ module.exports = bot => {
 	}
 
 	const embed = {
-                color: 1146534,
+		color: 1146534,
 		title: `**Command:** ${prefix}${name}`,
 		description: msgArray.join('\n'),
 	};
@@ -76,34 +75,37 @@ module.exports = bot => {
   }
 
   // Mods can reply to modmail threads using !r or !reply
-  // These messages get relayed back to the DM thread between the bot and the user
-  addInboxServerCommand('command', async (msg, args, thread) => {
-    if (! thread) return;
+	// These messages get relayed back to the DM thread between the bot and the user
+	if (config.dataFactory) {
+		const commands = require('../data/commands');
+		addInboxServerCommand('command', async (msg, args, thread) => {
+			if (! thread) return;
 
-    const cmd = args.join(' ').trim();
-    if (! cmd) return;
-    let isAnonymous = false;
+			const cmd = args.join(' ').trim();
+			if (! cmd) return;
+			let isAnonymous = false;
 
-    if (config.replyAnonDefault === true) {
-      isAnonymous = true;
-    }
+			if (config.replyAnonDefault === true) {
+				isAnonymous = true;
+			}
 
-    const resolvedCommand = await commands.getCommand(cmd);
-	if (! resolvedCommand) return;
+			const resolvedCommand = await commands.getCommand(cmd);
+			if (! resolvedCommand) return;
 
-	let embed;
+			let embed;
 
-	try {
-		embed = generateHelp(resolvedCommand);
-	} catch (err) {
-		console.error(err);
+			try {
+				embed = generateHelp(resolvedCommand);
+			} catch (err) {
+				console.error(err);
+			}
+
+			if (! embed) return;
+
+			await thread.sendCommandToUser(msg.member, { embed }, resolvedCommand, isAnonymous);
+			msg.delete();
+		});
+	
+		bot.registerCommandAlias('c', 'command');
 	}
-
-	if (! embed) return;
-
-    await thread.sendCommandToUser(msg.member, { embed }, resolvedCommand, isAnonymous);
-    msg.delete();
-  });
-
-  bot.registerCommandAlias('c', 'command');
 };

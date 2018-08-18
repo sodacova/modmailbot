@@ -2,7 +2,7 @@ const utils = require("../utils");
 const threadUtils = require("../threadUtils");
 const threads = require("../data/threads");
 
-module.exports = bot => {
+module.exports = (bot, sse) => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
   addInboxServerCommand('newthread', async (msg, args, thread) => {
@@ -25,6 +25,8 @@ module.exports = bot => {
 
     const createdThread = await threads.createNewThreadForUser(user, true);
     createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);
+    
+    sse.send({ thread: createdThread }, 'threadOpen')
 
     if (thread) {
       msg.delete();

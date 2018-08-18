@@ -66,6 +66,8 @@ const defaultConfig = {
   "knex": null,
 
   "logDir": path.join(__dirname, '..', 'logs'),
+
+  "dataFactory": false
 };
 
 const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
