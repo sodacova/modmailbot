@@ -44,7 +44,7 @@ class Thread {
       logModUsername = `(${moderator.user.username}) ${mainRole ? mainRole.name : 'Staff'}`;
     } else {
       const name = (config.useNicknames ? moderator.nick || moderator.user.username : moderator.user.username);
-      modUsername = (mainRole ? `(${mainRole.name}) ${name}` : name);
+      modUsername = (mainRole ? `(${name}) ${mainRole.name}` : name);
       logModUsername = modUsername;
     }
 
