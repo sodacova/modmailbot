@@ -82,14 +82,14 @@ const requiredAuth = ['clientId', 'clientSecret', 'redirectPath'];
 const finalConfig = Object.assign({}, defaultConfig);
 
 for (const [prop, value] of Object.entries(userConfig)) {
-  if (!defaultConfig.hasOwnProperty(prop)) {
+  if (! defaultConfig.hasOwnProperty(prop)) {
     throw new Error(`Invalid option: ${prop}`);
   }
 
   finalConfig[prop] = value;
 }
 
-if (!finalConfig['knex']) {
+if (! finalConfig['knex']) {
   finalConfig['knex'] = {
     client: 'sqlite',
     connection: {
@@ -106,14 +106,14 @@ Object.assign(finalConfig['knex'], {
 });
 
 for (const opt of required) {
-  if (!finalConfig[opt]) {
+  if (! finalConfig[opt]) {
     console.error(`Missing required config.json value: ${opt}`);
     process.exit(1);
   }
 }
 
 if (finalConfig.dashAuthRoles) {
-  let missingAuth = requiredAuth.filter(opt => !finalConfig[opt])
+  let missingAuth = requiredAuth.filter(opt => ! finalConfig[opt])
   if (missingAuth.length) {
     console.error(`Missing settings required by "dashAuthRoles": ${missingAuth.join(' ')}`);
     process.exit(1);
