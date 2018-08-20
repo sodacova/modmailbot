@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mime = require('mime');
 const fs = require('fs');
+const https = require('https');
 const path = require('path');
 const superagent = require('superagent');
 const config = require('../config');
@@ -118,7 +119,18 @@ module.exports = (bot, sse) => {
       }
     }); 
   });
+  
   app.get('/stream', sse.init);
+  
+  if (config.https) {
+    const httpsServer = https.createServer({
+      key: fs.readFileSync(config.https.privateKey, 'utf8'),
+      cert: fs.readFileSync(config.https.certificate, 'utf8'),
+      ca: fs.readFileSync(config.https.ca, 'utf8')
+    }, app);
 
-  app.listen(config.port);
+    httpsServer.listen(config.port);
+  } else {
+    app.listen(config.port);
+  }
 };
