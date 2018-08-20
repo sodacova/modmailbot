@@ -67,10 +67,16 @@ const defaultConfig = {
 
   "logDir": path.join(__dirname, '..', 'logs'),
 
-  "dataFactory": false
+  "dataFactory": false,
+
+  "dashAuthRoles": null,
+  "clientId": null,
+  "clientSecret": null,
+  "redirectPath": '/login',
 };
 
 const required = ['token', 'mailGuildId', 'mainGuildId', 'logChannelId'];
+const requiredAuth = ['clientId', 'clientSecret', 'redirectPath'];
 
 const finalConfig = Object.assign({}, defaultConfig);
 
@@ -101,6 +107,14 @@ Object.assign(finalConfig['knex'], {
 for (const opt of required) {
   if (! finalConfig[opt]) {
     console.error(`Missing required config.json value: ${opt}`);
+    process.exit(1);
+  }
+}
+
+if (finalConfig.dashAuthRoles) {
+  let missingAuth = requiredAuth.filter(opt => ! finalConfig[opt])
+  if (missingAuth.length) {
+    console.error(`Missing settings required by "dashAuthRoles": ${missingAuth.join(' ')}`);
     process.exit(1);
   }
 }

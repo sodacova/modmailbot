@@ -1,6 +1,14 @@
+# IDE
 /.vscode
 /.idea
+
+# NPM Packages
 /node_modules
+
+# Bot Stuff
 /config.json
 /welcome.png
+/src/dashboard
+
+# Scripts
 /update.sh

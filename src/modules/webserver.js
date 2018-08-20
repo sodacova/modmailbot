@@ -1,9 +1,11 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const mime = require('mime');
 const fs = require('fs');
 const path = require('path');
 const superagent = require('superagent');
 const config = require('../config');
+const oauth2 = require('../oauth2');
 const threads = require('../data/threads');
 const attachments = require('../data/attachments');
 const knex = require('../knex');
@@ -41,10 +43,17 @@ function getAttachment (id, desiredFilename) {
 module.exports = (bot, sse) => {
   const app = express();
   
+  app.use(cookieParser());
+
+  if (config.dashAuthRoles) {
+    app.get(config.redirectPath, oauth2.login);
+    app.use(oauth2.checkAuth);
+  }
+
   app.use(express.static(path.join(__dirname, '../dashboard/')));
   app.use((req, res, next) => {
-    res.set('Access-Control-Allow-Origin', '*')
-    next()
+    res.set('Access-Control-Allow-Origin', '*');
+    next();
   })
 
   app.get('/threads', async (req, res) => {
@@ -107,7 +116,7 @@ module.exports = (bot, sse) => {
           res.redirect(`https://discordapp.com/assets/${avatar}.png`);
         }
       }
-    });
+    }); 
   });
   app.get('/stream', sse.init);
 
