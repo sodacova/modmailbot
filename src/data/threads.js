@@ -99,7 +99,8 @@ async function createNewThreadForUser(user, quiet = false) {
   // Post some info to the beginning of the new thread
   const mainGuild = utils.getMainGuild();
   const member = (mainGuild ? mainGuild.members.get(user.id) : null);
-  if (! member) console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
+  if (! member)
+    return console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
 
   let mainGuildNickname = null;
 
