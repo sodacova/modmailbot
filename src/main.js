@@ -36,7 +36,7 @@ const sse = new SSE();
 bot.on('ready', () => {
   bot.editStatus(null, {name: config.status});
   console.log('Connected! Now listening to DMs.');
-  let guild = bot.guilds.get(config.mainGuildId)
+  let guild = bot.guilds.get(config.mailGuildId)
   let roles = []
   let users = []
   let channels = []
@@ -51,6 +51,7 @@ bot.on('ready', () => {
     users: users,
     channels: channels
   })
+  webserver(bot, sse);
 });
 
 /**
@@ -270,7 +271,6 @@ module.exports = {
     await suspend(bot);
     await notes(bot);
     await greeting(bot);
-    await webserver(bot, sse);
     await typingProxy(bot);
     await version(bot);
     await newthread(bot, sse);
