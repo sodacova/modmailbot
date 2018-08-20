@@ -44,11 +44,9 @@ async function checkAuth (req, res, next) {
       .set('Authorization', `Bearer ${accessToken}`)
       req.user = response.body
     } catch (err) {
-      console.log(err.message)
       return res.redirect('/login')
     }
     if (! req.user) {
-      console.log('no user')
       return res.redirect('/login')
     } else {
       let guild = bot.guilds.get(config.mailGuildId)
@@ -61,7 +59,6 @@ async function checkAuth (req, res, next) {
       }
     }
   } else {
-    console.log('what')
     res.redirect('/login')
   }
 }
