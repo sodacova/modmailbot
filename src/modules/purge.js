@@ -27,11 +27,13 @@ module.exports = bot => {
 
 		if (messages && messages.length) {
 			try {
+				const count = messages.length;
 				for (let id of messages) {
 					bot.deleteMessage(channel.id, id).catch(() => null);
 				}
+				thread.postSystemMessage(`Purged ${count} messages.`);
 			} catch (err) {
-				thread.postSystemMessage(`Error while replying to user: ${e.message}`);
+				thread.postSystemMessage(`Error deleting messages: ${e.message}`);
 			}
 		}
 	}

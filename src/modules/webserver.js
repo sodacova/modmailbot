@@ -59,12 +59,12 @@ module.exports = (bot, sse) => {
   app.get('/threads', async (req, res) => {
     let threads = await knex('threads').select('*');
     let c = {}
-    for (let thread of threads) {
-      if (thread.user_id in c)
-        thread.dm_channel_id = c[thread.user_id]
-      else
-        thread.dm_channel_id = c[thread.user_id] = (await bot.getDMChannel(thread.user_id)).id;
-    }
+//    for (let thread of threads) {
+//      if (thread.user_id in c)
+//        thread.dm_channel_id = c[thread.user_id]
+//      else
+//        thread.dm_channel_id = c[thread.user_id] = (await bot.getDMChannel(thread.user_id)).id;
+//    }
     res.send(threads);
   });
   app.get('/logs/:id', async (req, res) => {
