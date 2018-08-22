@@ -58,22 +58,55 @@ module.exports = (bot, sse) => {
   })
 
   app.get('/threads', async (req, res) => {
-    let threads = await knex('threads').select('*');
-    let c = {}
-    for (let thread of threads) {
-      if (thread.user_id in c)
-        thread.dm_channel_id = c[thread.user_id]
-      else
-        thread.dm_channel_id = c[thread.user_id] = (await bot.getDMChannel(thread.user_id)).id;
+    let limit = parseInt(req.query.limit) || 50;
+    if (limit < 1) limit = 1;
+    if (limit > 100) limit = 100;
+    let page = parseInt(req.query.page) || 0;
+    let user = req.query.user;
+    let reverse = 'reverse' in req.query;
+    let q;
+    if (user)
+      q = knex('threads').where('user_id', user);
+    else
+      q = knex('threads').select('*');
+    let threads = await q || [];
+    let total = threads.length
+    threads.sort((a, b) => {
+      if (Date(a.created_at) > Date(b.created_at))
+        return 1;
+      if (Date(a.created_at) < Date(b.created_at))
+        return -1;
+      return 0;
+    });
+    if (req.query.sort_by === 'status') {
+      if (! reverse)
+        threads.reverse();
+      let open = [];
+      for (let openThread of threads.filter(thread => thread.status === 1)) {
+        threads.splice(threads.indexOf(openThread), 1);
+        open.push(openThread);
+      }
+      threads.push(...open);
     }
-    res.send(threads);
+    if (reverse)
+      threads.reverse();
+    let offset = page * limit;
+    res.json({
+      total: total,
+      threads: threads.slice(offset, offset + limit)
+    });
+  });
+  app.get('/users', async (req, res) => {
+    let users = await knex('threads').select('user_id', 'user_name')
+      .groupBy('user_id').orderBy('created_at', 'desc');
+    res.json(users.map(u => ({ id: u.user_id, name: u.user_name })));
   });
   app.get('/logs/:id', async (req, res) => {
     let logs = await getLogs(req.params.id);
     if (! logs)
       return notfound(res);
 
-    res.send(logs);
+    res.json(logs);
   });
   app.get('/attachments/:id/:name', async (req, res) => {
     let [mime, attachment] = getAttachment(req.params.id, req.params.name) || [];
@@ -117,7 +150,7 @@ module.exports = (bot, sse) => {
           res.redirect(`https://discordapp.com/assets/${avatar}.png`);
         }
       }
-    }); 
+    });
   });
   
   app.get('/stream', sse.init);
