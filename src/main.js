@@ -106,8 +106,14 @@ bot.on('messageCreate', async msg => {
       if (config.ignoreAccidentalThreads && msg.content && ACCIDENTAL_THREAD_MESSAGES.includes(msg.content.trim().toLowerCase())) return;
 
       if (config.ignoreNonAlphaMessages && msg.content) {
-        const content = msg.content.replace(/[^a-zA-Z]/g);
-        if (! content || ! content.length) return;
+        const content = msg.content.replace(/[^a-zA-Z]/g, '');
+        if (! content || ! content.length) {
+          return msg.channel.createMessage(config.genericResponse);
+        }
+      }
+
+      if (config.minContentLength && msg.content && msg.content.length < config.minContentLength) {
+        return msg.channel.createMessage(config.genericResponse);
       }
 
       if (config.ignoredPrefixes && msg.content) {

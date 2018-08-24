@@ -68,6 +68,6 @@ module.exports = bot => {
   addInboxServerCommand('loglink', async (msg, args, thread) => {
     if (! thread) return;
     const logUrl = await thread.getLogUrl();
-    thread.postSystemMessage(`Log URL: ${logUrl}`);
+    thread.postSystemMessage(`Log URL: <${logUrl}>`);
   });
 };

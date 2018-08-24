@@ -24,6 +24,7 @@ const defaultConfig = {
   "responseMessage": "Thank you for your message! Our mod team will reply to you here as soon as possible.",
   "ignoredWordResponse": "There are no commands. If you would like to speak with staff, please ask a question here.",
   "ignoredPrefixResponse": "There are no commands. If you would like to speak with staff, please ask a question here.",
+  "genericResponse": "If you would like to speak with staff, please ask a question here.",
 
   "ignoredWords": [],
   "ignoredPrefixes": [],
@@ -31,6 +32,8 @@ const defaultConfig = {
   "ignoredWordAutorespond": false,
   "ignoredPrefixAutorespond": false,
   "ignoreNonAlphaMessages": false,
+
+  "minContentLength": 3,
 
   "newThreadCategoryId": null,
   "mentionRole": "here",

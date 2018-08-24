@@ -150,7 +150,7 @@ module.exports = (bot, sse) => {
           res.redirect(`https://discordapp.com/assets/${avatar}.png`);
         }
       }
-    });
+    }); 
   });
   
   app.get('/stream', sse.init);

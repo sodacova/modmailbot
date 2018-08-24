@@ -19,7 +19,7 @@ module.exports = (bot, sse) => {
       const logUrl = await thread.getLogUrl();
       utils.postLog(utils.trimAll(`
         Modmail thread with ${thread.user_name} (${thread.user_id}) was closed as scheduled by ${thread.scheduled_close_name}
-        Logs: ${logUrl}
+        Logs: <${logUrl}>
       `));
     }
   }
@@ -72,7 +72,7 @@ module.exports = (bot, sse) => {
     const logUrl = await thread.getLogUrl();
     utils.postLog(utils.trimAll(`
       Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${msg.author.username}
-      Logs: ${logUrl}
+      Logs: <${logUrl}>
     `));
   });
 
