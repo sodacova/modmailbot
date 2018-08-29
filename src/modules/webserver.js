@@ -45,6 +45,16 @@ module.exports = (bot, sse) => {
   const app = express();
   
   app.use(cookieParser());
+  
+  app.get('/attachments/:id/:name', async (req, res) => {
+    let [mime, attachment] = getAttachment(req.params.id, req.params.name) || [];
+
+    if (! attachment)
+      return notfound(res);
+
+    res.set('Content-Type', mime);
+    res.send(attachment);
+  });
 
   if (config.dashAuthRoles) {
     app.get(config.redirectPath, oauth2.login);
@@ -58,42 +68,25 @@ module.exports = (bot, sse) => {
   })
 
   app.get('/threads', async (req, res) => {
-    let limit = parseInt(req.query.limit) || 50;
+    let { limit, page, user, sort_by, reverse } = req.query;
+    limit = parseInt(limit) || 50;
     if (limit < 1) limit = 1;
     if (limit > 100) limit = 100;
-    let page = parseInt(req.query.page) || 0;
-    let user = req.query.user;
-    let reverse = 'reverse' in req.query;
-    let q;
+    page = parseInt(page) || 0;
+    reverse = reverse != null;
+    let q = knex('threads');
     if (user)
-      q = knex('threads').where('user_id', user);
+      q.where('user_id', user);
     else
-      q = knex('threads').select('*');
-    let threads = await q || [];
-    let total = threads.length
-    threads.sort((a, b) => {
-      if (Date(a.created_at) > Date(b.created_at))
-        return 1;
-      if (Date(a.created_at) < Date(b.created_at))
-        return -1;
-      return 0;
-    });
-    if (req.query.sort_by === 'status') {
-      if (! reverse)
-        threads.reverse();
-      let open = [];
-      for (let openThread of threads.filter(thread => thread.status === 1)) {
-        threads.splice(threads.indexOf(openThread), 1);
-        open.push(openThread);
-      }
-      threads.push(...open);
-    }
-    if (reverse)
-      threads.reverse();
+      q.select('*');
+    let total = (await q.clone().count())[0]['count(*)'];
+    if (sort_by)
+      q.orderBy(sort_by, reverse ? 'asc' : 'desc');
+    q.orderBy('created_at', reverse ? 'desc' : 'asc');
     let offset = page * limit;
     res.json({
       total: total,
-      threads: threads.slice(offset, offset + limit)
+      threads: await q.limit(limit).offset(offset)
     });
   });
   app.get('/users', async (req, res) => {
@@ -107,15 +100,6 @@ module.exports = (bot, sse) => {
       return notfound(res);
 
     res.json(logs);
-  });
-  app.get('/attachments/:id/:name', async (req, res) => {
-    let [mime, attachment] = getAttachment(req.params.id, req.params.name) || [];
-    
-    if (! attachment)
-      return notfound(res);
-
-    res.set('Content-Type', mime);
-    res.send(attachment);
   });
   app.get('/avatars/:id', async (req, res) => {
     superagent.get(`https://discordapp.com/api/users/${req.params.id}`)
