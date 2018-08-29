@@ -62,6 +62,7 @@ const defaultConfig = {
 
   "port": 8890,
   "url": null,
+  "https": null,
 
   "mongoDSN": null,
 
@@ -94,7 +95,7 @@ for (const [prop, value] of Object.entries(userConfig)) {
 if (! finalConfig['knex']) {
   finalConfig['knex'] = {
     client: 'sqlite',
-      connection: {
+    connection: {
       filename: path.join(finalConfig.dbDir, 'data.sqlite')
     },
     useNullAsDefault: true

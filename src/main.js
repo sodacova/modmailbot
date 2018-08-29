@@ -51,6 +51,7 @@ bot.on('ready', () => {
     users: users,
     channels: channels
   })
+  webserver(bot, sse);
 });
 
 /**
@@ -94,7 +95,7 @@ bot.on('messageCreate', async msg => {
 
   if (await blocked.isBlocked(msg.author.id)) return;
 
-  if (msg.content.length > 1600) return msg.channel.createMessage(`Your message is too long to be recieved by Dave. (${msg.content.length}/1600)`)
+  if (msg.content.length > 1900) return msg.channel.createMessage(`Your message is too long to be recieved by Dave. (${msg.content.length}/1900)`)
   // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
   messageQueue.add(async () => {
     let thread = await threads.findOpenThreadByUserId(msg.author.id);
@@ -276,7 +277,6 @@ module.exports = {
     await suspend(bot);
     await notes(bot);
     await greeting(bot);
-    await webserver(bot, sse);
     await typingProxy(bot);
     await version(bot);
     await newthread(bot, sse);

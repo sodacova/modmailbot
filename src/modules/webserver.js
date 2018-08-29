@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const mime = require('mime');
 const fs = require('fs');
+const https = require('https');
 const path = require('path');
 const superagent = require('superagent');
 const config = require('../config');
@@ -44,6 +45,16 @@ module.exports = (bot, sse) => {
   const app = express();
   
   app.use(cookieParser());
+  
+  app.get('/attachments/:id/:name', async (req, res) => {
+    let [mime, attachment] = getAttachment(req.params.id, req.params.name) || [];
+
+    if (! attachment)
+      return notfound(res);
+
+    res.set('Content-Type', mime);
+    res.send(attachment);
+  });
 
   if (config.dashAuthRoles) {
     app.get(config.redirectPath, oauth2.login);
@@ -57,31 +68,38 @@ module.exports = (bot, sse) => {
   })
 
   app.get('/threads', async (req, res) => {
-    let threads = await knex('threads').select('*');
-    let c = {}
-//    for (let thread of threads) {
-//      if (thread.user_id in c)
-//        thread.dm_channel_id = c[thread.user_id]
-//      else
-//        thread.dm_channel_id = c[thread.user_id] = (await bot.getDMChannel(thread.user_id)).id;
-//    }
-    res.send(threads);
+    let { limit, page, user, sort_by, reverse } = req.query;
+    limit = parseInt(limit) || 50;
+    if (limit < 1) limit = 1;
+    if (limit > 100) limit = 100;
+    page = parseInt(page) || 0;
+    reverse = reverse != null;
+    let q = knex('threads');
+    if (user)
+      q.where('user_id', user);
+    else
+      q.select('*');
+    let total = (await q.clone().count())[0]['count(*)'];
+    if (sort_by)
+      q.orderBy(sort_by, reverse ? 'asc' : 'desc');
+    q.orderBy('created_at', reverse ? 'desc' : 'asc');
+    let offset = page * limit;
+    res.json({
+      total: total,
+      threads: await q.limit(limit).offset(offset)
+    });
+  });
+  app.get('/users', async (req, res) => {
+    let users = await knex('threads').select('user_id', 'user_name')
+      .groupBy('user_id').orderBy('created_at', 'desc');
+    res.json(users.map(u => ({ id: u.user_id, name: u.user_name })));
   });
   app.get('/logs/:id', async (req, res) => {
     let logs = await getLogs(req.params.id);
     if (! logs)
       return notfound(res);
 
-    res.send(logs);
-  });
-  app.get('/attachments/:id/:name', async (req, res) => {
-    let [mime, attachment] = getAttachment(req.params.id, req.params.name) || [];
-    
-    if (! attachment)
-      return notfound(res);
-
-    res.set('Content-Type', mime);
-    res.send(attachment);
+    res.json(logs);
   });
   app.get('/avatars/:id', async (req, res) => {
     superagent.get(`https://discordapp.com/api/users/${req.params.id}`)
@@ -118,7 +136,18 @@ module.exports = (bot, sse) => {
       }
     }); 
   });
+  
   app.get('/stream', sse.init);
+  
+  if (config.https) {
+    const httpsServer = https.createServer({
+      key: fs.readFileSync(config.https.privateKey, 'utf8'),
+      cert: fs.readFileSync(config.https.certificate, 'utf8'),
+      ca: fs.readFileSync(config.https.ca, 'utf8')
+    }, app);
 
-  app.listen(config.port);
+    httpsServer.listen(config.port);
+  } else {
+    app.listen(config.port);
+  }
 };
