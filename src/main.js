@@ -36,7 +36,7 @@ const sse = new SSE();
 bot.on('ready', () => {
   bot.editStatus(null, {name: config.status});
   console.log('Connected! Now listening to DMs.');
-  let guild = bot.guilds.get(config.mailGuildId)
+  let guild = bot.guilds.get(config.mainGuildId)
   let roles = []
   let users = []
   let channels = []
