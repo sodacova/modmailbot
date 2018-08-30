@@ -71,7 +71,7 @@ module.exports = (bot, sse) => {
 
     const logUrl = await thread.getLogUrl();
     utils.postLog(utils.trimAll(`
-      Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${msg.author.username}
+      Modmail thread with ${thread.user_name} (${thread.user_id}) was closed by ${msg.author.username}#${msg.author.discriminator}
       Logs: <${logUrl}>
     `));
   });
