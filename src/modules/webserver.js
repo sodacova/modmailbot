@@ -56,7 +56,7 @@ module.exports = (bot, sse) => {
     res.send(attachment);
   });
 
-  if (config.dashAuthRoles) {
+  if (config.dashAuthRoles || config.dashAuthUsers) {
     app.get(config.redirectPath, oauth2.login);
     app.use(oauth2.checkAuth);
   }
