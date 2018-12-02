@@ -13,7 +13,7 @@ const knex = require('../knex');
 
 function notfound(res) {
   res.status(404);
-  res.send('Page Not Found');
+  res.json({ message: '404: Resource Not Found' });
 }
 
 async function getLogs (threadId) {
@@ -56,7 +56,7 @@ module.exports = (bot, sse) => {
     res.send(attachment);
   });
 
-  if (config.dashAuthRoles) {
+  if (config.dashAuthRoles || config.dashAuthUsers) {
     app.get(config.redirectPath, oauth2.login);
     app.use(oauth2.checkAuth);
   }
@@ -88,6 +88,13 @@ module.exports = (bot, sse) => {
       total: total,
       threads: await q.limit(limit).offset(offset)
     });
+  });
+  app.get('/threads/:id', async (req, res) => {
+    let thread = await knex('threads').where('id', req.params.id).first();
+    if (! thread)
+      return notfound(res);
+
+    res.json(thread);
   });
   app.get('/users', async (req, res) => {
     let users = await knex('threads').select('user_id', 'user_name')

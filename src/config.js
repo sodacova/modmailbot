@@ -74,6 +74,7 @@ const defaultConfig = {
   "dataFactory": false,
 
   "dashAuthRoles": null,
+  "dashAuthUsers": null,
   "clientId": null,
   "clientSecret": null,
   "redirectPath": '/login',
@@ -115,10 +116,10 @@ for (const opt of required) {
   }
 }
 
-if (finalConfig.dashAuthRoles) {
+if (finalConfig.dashAuthRoles || finalConfig.dashAuthUsers) {
   let missingAuth = requiredAuth.filter(opt => ! finalConfig[opt])
   if (missingAuth.length) {
-    console.error(`Missing settings required by "dashAuthRoles": ${missingAuth.join(' ')}`);
+    console.error(`Missing settings required by "dashAuth": ${missingAuth.join(' ')}`);
     process.exit(1);
   }
 }

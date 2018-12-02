@@ -79,7 +79,7 @@ bot.on('messageCreate', async msg => {
     msg.delete();
   } else {
     // Otherwise just save the messages as "chat" in the logs
-    thread.saveChatMessage(msg);
+    thread.saveChatMessage(msg, sse);
   }
 });
 

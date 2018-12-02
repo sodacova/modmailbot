@@ -51,7 +51,12 @@ async function checkAuth (req, res, next) {
     } else {
       let guild = bot.guilds.get(config.mailGuildId)
       let member = guild.members.get(req.user.id)
-      if (member.roles.some(r => config.dashAuthRoles.includes(r))) {
+      let hasRole, isUser
+      if (config.dashAuthRoles)
+        hasRole = member.roles.some(r => config.dashAuthRoles.includes(r))
+      if (config.dashAuthUsers)
+        isUser = config.dashAuthUsers.includes(member.id)
+      if (isUser || hasRole) {
         next()
       } else {
         res.status(401)

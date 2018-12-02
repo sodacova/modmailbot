@@ -484,7 +484,7 @@ class Thread {
    * @returns {Promise<String>}
    */
   getLogUrl() {
-    return utils.getSelfUrl(`#thread:${this.id}`);
+    return utils.getSelfUrl(`#thread/${this.id}`);
   }
 }
 
