@@ -97,7 +97,7 @@ async function createNewThreadForUser(user, quiet = false) {
   }
 
   // Post some info to the beginning of the new thread
-  const mainGuild = utils.getMainGuild();
+  const mainGuild = await utils.getMainGuild();
   const member = (mainGuild ? mainGuild.members.get(user.id) : null);
   if (! member)
     return console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
@@ -117,7 +117,7 @@ async function createNewThreadForUser(user, quiet = false) {
     displayNote = `**Note:** ${note.note}\n`;
   } else
     displayNote = '';
-  const infoHeader = `NAME **${mainGuildNickname}**\nMENTION ${member.mention}\nID **${user.id}**\nACCOUNT AGE **${accountAge}**\n`
+  const infoHeader = `NAME **${mainGuildNickname}**\nMENTION ${member ? member.mention : 'UNKNOWN'}\nID **${user.id}**\nACCOUNT AGE **${accountAge}**\n`
     + `LOGS **${userLogCount}**\n${displayNote}────────────────────────────────`;
 
   await newThread.postSystemMessage(infoHeader);
