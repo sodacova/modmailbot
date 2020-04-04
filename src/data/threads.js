@@ -97,17 +97,12 @@ async function createNewThreadForUser(user, quiet = false) {
   }
 
   // Post some info to the beginning of the new thread
-  const mainGuild = await utils.getMainGuild();
-  const member = (mainGuild ? mainGuild.members.get(user.id) : null);
-  if (! member)
-    return console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
+  const mainGuild = utils.getMainGuild();
+  const member = mainGuild ? await bot.getRESTGuildMember(mainGuild.id, user.id).catch(e => null) : null;
+  if (! member) console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
 
-  let mainGuildNickname = null;
-
-  if(member && member.nick) mainGuildNickname = member.nick
-  else if(member && ! member.nick) mainGuildNickname = member.username
-  else if(! member) mainGuildNickname = 'An unknown user'
-
+  let mainGuildNickname = member && member.nick || user.username;
+    
   const userLogCount = await getClosedThreadCountByUserId(user.id);
   const accountAge = humanizeDuration(Date.now() - user.createdAt, {largest: 2});
   let displayNote;
@@ -117,7 +112,7 @@ async function createNewThreadForUser(user, quiet = false) {
     displayNote = `[${note.created_at}] (${note.created_by_name}) => **Note:** ${note.note}\n`;
   } else
     displayNote = '';
-  const infoHeader = `NAME **${mainGuildNickname}**\nMENTION ${member ? member.mention : 'UNKNOWN'}\nID **${user.id}**\nACCOUNT AGE **${accountAge}**\n`
+  const infoHeader = `NAME **${mainGuildNickname}**\nMENTION ${user.mention}\nID **${user.id}**\nACCOUNT AGE **${accountAge}**\n`
     + `LOGS **${userLogCount}**\n${displayNote}────────────────────────────────`;
 
   await newThread.postSystemMessage(infoHeader);
