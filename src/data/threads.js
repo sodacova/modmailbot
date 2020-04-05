@@ -109,11 +109,11 @@ async function createNewThreadForUser(user, quiet = false) {
   let userNotes = await notes.get(user.id)
   if (userNotes && userNotes.length) {
     let note = userNotes.slice(-1)[0];
-    displayNote = `[${note.created_at}] (${note.created_by_name}) => **Note:** ${note.note}\n`;
+    displayNote = `**Note:** ${note.note} - [${note.created_at}] (${note.created_by_name})`;
   } else
     displayNote = '';
   const infoHeader = `NAME **${mainGuildNickname}**\nMENTION ${user.mention}\nID **${user.id}**\nACCOUNT AGE **${accountAge}**\n`
-    + `LOGS **${userLogCount}**\n${displayNote}────────────────────────────────`;
+    + `LOGS **${userLogCount}**\n${displayNote}\n────────────────────────────────`;
 
   await newThread.postSystemMessage(infoHeader);
 
