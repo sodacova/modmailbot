@@ -13,7 +13,7 @@ module.exports = bot => {
       msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
     }
 
-    let logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked.`;
+    let logText = `**Blocked: **${thread.user_name} (${thread.user_id}) was blocked.`;
 
     if (! thread && args.length > 0) {
       // User mention/id as argument
@@ -23,7 +23,7 @@ module.exports = bot => {
       const reason = args.slice(1).join(' ').trim();
 
       if (reason && reason.length) {
-        logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
+        logText = `**Blocked: **${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
       }
 
       utils.postLog(logText);
@@ -41,7 +41,7 @@ module.exports = bot => {
 
       if (reason && reason.length) {
         text = `You have been blocked for ${reason}`;
-        logText = `**Blocked: ** ${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
+        logText = `**Blocked: **${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
       }
 
       if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
@@ -60,7 +60,7 @@ module.exports = bot => {
       msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
     }
 
-    let logText = `**Unblocked: ** ${thread.user_name} (${thread.user_id}) was unblocked.`;
+    let logText = `**Unblocked: **${thread.user_name} (${thread.user_id}) was unblocked.`;
 
     if (! thread && args.length > 0) {
       // User mention/id as argument
@@ -70,7 +70,7 @@ module.exports = bot => {
       const reason = args.slice(1).join(' ').trim();
 
       if (reason && reason.length) {
-        logText = `**Unblocked: ** ${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
+        logText = `**Unblocked: **${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
       }
 
       utils.postLog(logText);
@@ -80,7 +80,7 @@ module.exports = bot => {
       const reason = args.join(' ').trim();
 
       if (reason && reason.length) {
-        logText = `**Unblocked: ** ${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
+        logText = `**Unblocked: **${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
       }
 
       utils.postLog(logText);
