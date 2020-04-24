@@ -13,7 +13,7 @@ module.exports = bot => {
       msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
     }
 
-    let logText = `**Blocked: **${thread.user_name} (${thread.user_id}) was blocked.`;
+    let logText = `**Blocked:** ${thread.user_name} (${thread.user_id}) was blocked.`;
 
     if (! thread && args.length > 0) {
       // User mention/id as argument
