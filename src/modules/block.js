@@ -23,7 +23,7 @@ module.exports = bot => {
       const reason = args.slice(1).join(' ').trim();
 
       if (reason && reason.length) {
-        logText = `**Blocked: **${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
+        logText = `**Blocked:** ${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
       }
 
       utils.postLog(logText);
