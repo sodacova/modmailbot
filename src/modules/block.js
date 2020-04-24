@@ -70,7 +70,7 @@ module.exports = bot => {
       const reason = args.slice(1).join(' ').trim();
 
       if (reason && reason.length) {
-        logText = `**Unblocked: **${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
+        logText = `**Unblocked:** ${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
       }
 
       utils.postLog(logText);
