@@ -60,7 +60,7 @@ module.exports = bot => {
       msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
     }
 
-    let logText = `**Unblocked: **${thread.user_name} (${thread.user_id}) was unblocked.`;
+    let logText = `**Unblocked:** ${thread.user_name} (${thread.user_id}) was unblocked.`;
 
     if (! thread && args.length > 0) {
       // User mention/id as argument
