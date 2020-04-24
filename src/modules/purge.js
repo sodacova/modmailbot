@@ -39,5 +39,26 @@ module.exports = bot => {
 	}
   });
 
-  bot.registerCommandAlias('p', 'purge');
+	bot.registerCommandAlias('p', 'purge');
+	
+	addInboxServerCommand('undo', async (msg, args, thread) => {
+		if (! thread) return;
+
+		const channel = await bot.getDMChannel(thread.user_id);
+		if (! channel || ! channel.id) {
+			return thread.postSystemMessage(`Error getting DM Channel`);
+		}
+
+		let message = await bot.getMessages(channel.id, 100);
+		message = messages.filter(m => m.author.id === bot.user.id)[0];
+
+		if (message) {
+			try {
+				await bot.deleteMessage(channel.id, message.id);
+				thread.postSystemMessage(`Purged 1 message.`);
+			} catch (err) {
+				thread.postSystemMessage(`Error deleting messages: ${e.message}`);
+			}
+		}
+	})
 };
