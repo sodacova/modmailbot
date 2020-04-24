@@ -50,7 +50,7 @@ module.exports = bot => {
 		}
 
 		let message = await bot.getMessages(channel.id, 100);
-		message = messages.filter(m => m.author.id === bot.user.id)[0];
+		message = message.filter(m => m.author.id === bot.user.id)[0];
 
 		if (message) {
 			try {
