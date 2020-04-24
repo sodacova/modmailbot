@@ -26,6 +26,7 @@ const newthread = require('./modules/newthread');
 const notes = require('./modules/notes');
 const idcmd = require('./modules/id');
 const ping = require('./modules/ping');
+const fixAttachment = require('./modules/img');
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require('./data/constants');
@@ -283,6 +284,7 @@ module.exports = {
     await newthread(bot, sse);
     await idcmd(bot);
     await ping(bot);
+    await fixAttachment(bot);
 
     // Connect to Discord
     console.log('Connecting to Discord...');
