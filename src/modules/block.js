@@ -41,7 +41,7 @@ module.exports = bot => {
 
       if (reason && reason.length) {
         text = `You have been blocked for ${reason}`;
-        logText = `**Blocked: **${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
+        logText = `**Blocked:** ${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
       }
 
       if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
