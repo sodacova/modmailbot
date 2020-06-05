@@ -21,6 +21,7 @@
     "mime": "^2.4.6",
     "moment": "^2.26.0",
     "public-ip": "^4.0.1",
+    "sqlite3": "^4.2.0",
     "superagent": "^5.2.2",
     "transliteration": "^2.1.11",
     "uuid": "^8.1.0"
