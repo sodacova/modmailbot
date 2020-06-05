@@ -1,16 +1,43 @@
 const threadUtils = require("../threadUtils");
-const { getSelfUrl } = require('../utils');
+const { getSelfUrl, regEscape } = require('../utils');
 
+const DISCORD_REGEX = /(https:\/\/(canary\.|beta\.)?discord(app)?\.com\/channels\/\d{17,19}\/\d{17,19}\/)?\d{17,19}/g;
+const REPLACE_REGEX = (str) => new RegExp(regEscape(str), 'g');
+const ATTACHMENT_REGEX = (str) => new RegExp(`${regEscape(str)}(?:(?! ).)*`, 'g');
+const DISCORD_ATTACHMENT_REGEX = (str) => new RegExp(str, 'g');
+
+/**
+ * @param {import('eris').CommandClient} bot
+ */
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
   addInboxServerCommand('img', async (msg, args, thread) => {
     if (! thread) return;
-    const dmChannel = await bot.getDMChannel(thread.user_id);
+    if (! args.length) return msg.channel.createMessage('<:dynoError:696561633425621078> Provide message or attachment URL(s)');
+    const [selfURL, dmChannel] = await Promise.all([getSelfUrl('/attachments'), bot.getDMChannel(thread.user_id)]);
     if (! dmChannel) return;
 
-    if (! (args.length && args[0].startsWith(await getSelfUrl('attachments/')))) return msg.channel.createMessage('<:dynoError:696561633425621078> Provide an attachment URL');
-    const url = args[0].replace(await getSelfUrl('attachments/'), `https://cdn.discordapp.com/attachments/${dmChannel.id}/`);
-    msg.channel.createMessage(url);
+    const discordURLs = await Promise.all(msg.content.match(DISCORD_REGEX).map(async url => {
+      const asArray = url.split('/');
+      const messageID = asArray[asArray.length - 1];
+      try {
+        const { content } = await msg.channel.getMessage(messageID);
+        return [url, content];
+      } catch (error) {
+        return null;
+      }
+    }));
+    discordURLs.filter((value, index, self) => value && self.findIndex(i => i[0] === value[0])).forEach(s => {
+      const [url, content] = s;
+      msg.content = msg.content.replace(REPLACE_REGEX(url), content);
+    });
+
+    const attachments = msg.content.match(ATTACHMENT_REGEX(selfURL));
+    if (! attachments.length) return msg.channel.createMessage('<:dynoError:696561633425621078> Could not find an attachment');
+    const urls = attachments.join('\n').replace(DISCORD_ATTACHMENT_REGEX(selfURL), `https://cdn.discordapp.com/attachments/${dmChannel.id}/`);
+    msg.channel.createMessage(urls);
   });
+
+  bot.registerCommandAlias('att', 'img');
 };
