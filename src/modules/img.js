@@ -6,9 +6,6 @@ const REPLACE_REGEX = (str) => new RegExp(regEscape(str), 'g');
 const ATTACHMENT_REGEX = (str) => new RegExp(`${regEscape(str)}(?:(?! ).)*`, 'g');
 const DISCORD_ATTACHMENT_REGEX = (str) => new RegExp(str, 'g');
 
-/**
- * @param {import('eris').CommandClient} bot
- */
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
