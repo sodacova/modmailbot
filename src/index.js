@@ -45,7 +45,7 @@ process.on('unhandledRejection', err => {
     error = err;
   }
   console.error(error);
-  utils.postLog(error.stack);
+  utils.handleError(error);
 });
 
 (async function() {

@@ -13,6 +13,8 @@ const defaultConfig = {
   "mailGuildId": null,
   "mainGuildId": null,
   "logChannelId": null,
+  "errorWebhookId": null,
+  "errorWebhookToken": null,
 
   "prefix": "!",
   "snippetPrefix": "!!",
