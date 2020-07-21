@@ -1,6 +1,8 @@
 const childProcess = require('child_process');
 const threadUtils = require('../threadUtils');
 
+const GIT_VALIDATOR = /^git[\w\d\s-"'\/\.]+$/;
+
 async function exec(command, options) { // My very elaborate asynchronous streamed execution function, you're welcome
   return new Promise((res, rej) => {
     let output = '';
@@ -26,9 +28,12 @@ async function exec(command, options) { // My very elaborate asynchronous stream
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
-  addInboxServerCommand('pull', async (msg, args, thread) => {
-    const message = await msg.channel.createMessage('Pulling...');
-    exec('git pull').then(
+  addInboxServerCommand('git', async (msg, args, thread) => {
+    const command = `git ${args.join(' ')}`;
+    if (! GIT_VALIDATOR.test(command)) return msg.channel.createMessage('no.');
+
+    const message = await msg.channel.createMessage('Running...');
+    exec(command).then(
       (res) => message.edit(`\`\`\`\n${res}\n\`\`\``),
       (rej) => message.edit(`\`\`\`\n${rej.message}\n\`\`\``)
     );
