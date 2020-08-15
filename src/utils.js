@@ -63,6 +63,16 @@ function postError(str) {
   });
 }
 
+function handleError(error) {
+  bot.executeWebhook(config.errorWebhookId, config.errorWebhookToken, {
+    content: '**Error:**\n'
+      + `\`\`\`js\n${error.stack}\n\`\`\``
+  }).catch(() => { // If no webhook configs are supplied, promise will be rejected
+    getLogChannel().createMessage('**Error:**\n'
+      + `\`\`\`js\n${error.stack}\n\`\`\``)
+  })
+}
+
 /**
  * Returns whether the given member has permission to use modmail commands
  * @param member
@@ -277,6 +287,7 @@ module.exports = {
   getLogChannel,
   postError,
   postLog,
+  handleError,
 
   isStaff,
   messageIsOnInboxServer,

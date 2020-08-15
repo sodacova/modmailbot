@@ -35,16 +35,18 @@ const main = require('./main');
 const knex = require('./knex');
 const legacyMigrator = require('./legacy/legacyMigrator');
 
-// Force crash on unhandled rejections (use something like forever/pm2 to restart)
+// Send error on unhandled rejections
 process.on('unhandledRejection', err => {
+  let error;
   if (err instanceof utils.BotError || (err && err.code)) {
+    if (err.code === 1001 || err.code === 1006) return; // We don't care about connection reset by peer and cloudflare webproxy restart
     // We ignore stack traces for BotErrors (the message has enough info) and network errors from Eris (their stack traces are unreadably long)
-    console.error(`Error: ${err.message}`);
+    error = new Error(err.message);
   } else {
-    console.error(err);
+    error = err;
   }
-
-  process.exit(1);
+  console.error(error);
+  utils.handleError(error);
 });
 
 (async function() {

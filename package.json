@@ -11,25 +11,25 @@
   },
   "author": "",
   "dependencies": {
-    "cookie-parser": "^1.4.3",
-    "eris": "github:bsian03/eris#48eca25dafd623af8e7cc29784def5d05da87757",
-    "express": "^4.16.3",
-    "express-sse": "^0.5.0",
-    "humanize-duration": "^3.12.1",
-    "jsonwebtoken": "^8.3.0",
-    "knex": "^0.14.2",
-    "mime": "^1.3.4",
-    "moment": "^2.21.0",
-    "public-ip": "^2.0.1",
-    "sqlite3": "^3.1.13",
-    "superagent": "^3.8.3",
-    "transliteration": "^1.6.2",
-    "uuid": "^3.1.0"
+    "cookie-parser": "^1.4.5",
+    "eris": "github:bsian03/eris#b2cab9f55ee33957997125b6760e52a7aeb5460e",
+    "express": "^4.17.1",
+    "express-sse": "^0.5.3",
+    "humanize-duration": "^3.23.1",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.1",
+    "mime": "^2.4.6",
+    "moment": "^2.27.0",
+    "public-ip": "^4.0.1",
+    "sqlite3": "^5.0.0",
+    "superagent": "^5.3.1",
+    "transliteration": "^2.1.11",
+    "uuid": "^8.2.0"
   },
   "optionalDependencies": {
     "@dyno.gg/datafactory": "^1.3.3"
   },
   "devDependencies": {
-    "eslint": "^3.9.1"
+    "eslint": "^7.4.0"
   }
 }
