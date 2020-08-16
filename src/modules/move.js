@@ -1,7 +1,6 @@
-const config = require('../config');
-const Eris = require('eris');
-const threadUtils = require('../threadUtils');
-const transliterate = require("transliteration");
+const config = require("../config");
+const Eris = require("eris");
+const threadUtils = require("../threadUtils");
 
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
@@ -12,7 +11,7 @@ module.exports = bot => {
     let promises = [];
     for (let o of overwrites.values()) {
       if (o.id === channel.guild.id) continue;
-      promises.push(channel.deletePermission(o.id, 'Moving modmail thread.'));
+      promises.push(channel.deletePermission(o.id, "Moving modmail thread."));
     }
 
     return await Promise.all(promises);
@@ -23,17 +22,17 @@ module.exports = bot => {
     if (! overwrites) return;
     for (let o of overwrites.values()) {
       if (o.id === channel.guild.id) continue;
-      channel.editPermission(o.id, o.allow || null, o.deny || null, o.type, 'Moving modmail thread.');
+      channel.editPermission(o.id, o.allow || null, o.deny || null, o.type, "Moving modmail thread.");
     }
   }
 
-  addInboxServerCommand('move', async (msg, args, thread) => {
+  addInboxServerCommand("move", async (msg, args, thread) => {
     if (! config.allowMove) return;
 
     if (! thread) return;
 
     const searchStr = args[0];
-    if (! searchStr || searchStr.trim() === '') return;
+    if (! searchStr || searchStr.trim() === "") return;
 
     // const normalizedSearchStr = transliterate.slugify(searchStr);
 
@@ -53,7 +52,7 @@ module.exports = bot => {
 
     const targetCategory = categories.find(c => c.name.toLowerCase() === searchStr.toLowerCase() || c.name.toLowerCase().startsWith(searchStr.toLowerCase()));
     if (! targetCategory) {
-      return thread.postSystemMessage('No matching category.');
+      return thread.postSystemMessage("No matching category.");
     }
 
     // See if any category name contains a part of the search string
@@ -88,10 +87,10 @@ module.exports = bot => {
 
     bot.editChannel(thread.channel_id, {
       parentID: targetCategory.id
-    }).then(channel => syncThreadChannel(threadChannel, targetCategory));
+    }).then(() => syncThreadChannel(threadChannel, targetCategory));
 
     thread.postSystemMessage(`Thread moved to ${targetCategory.name.toUpperCase()}`);
   });
 
-  bot.registerCommandAlias('m', 'move');
+  bot.registerCommandAlias("m", "move");
 };

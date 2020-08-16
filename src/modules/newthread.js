@@ -5,7 +5,7 @@ const threads = require("../data/threads");
 module.exports = (bot, sse) => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
-  addInboxServerCommand('newthread', async (msg, args, thread) => {
+  addInboxServerCommand("newthread", async (msg, args, thread) => {
     if (args.length === 0) return;
 
     const userId = utils.getUserMention(args[0]);
@@ -13,7 +13,7 @@ module.exports = (bot, sse) => {
 
     const user = bot.users.get(userId);
     if (! user) {
-      utils.postSystemMessageWithFallback(msg.channel, thread, 'User not found!');
+      utils.postSystemMessageWithFallback(msg.channel, thread, "User not found!");
       return;
     }
 
@@ -26,7 +26,7 @@ module.exports = (bot, sse) => {
     const createdThread = await threads.createNewThreadForUser(user, true);
     createdThread.postSystemMessage(`Thread was opened by ${msg.author.username}#${msg.author.discriminator}`);
     
-    sse.send({ thread: createdThread }, 'threadOpen')
+    sse.send({ thread: createdThread }, "threadOpen");
 
     if (thread) {
       msg.delete();

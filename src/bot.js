@@ -1,5 +1,5 @@
-const Eris = require('eris');
-const config = require('./config');
+const Eris = require("eris");
+const config = require("./config");
 
 const bot = new Eris.CommandClient(config.token, {
   getAllUsers: true,

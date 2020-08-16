@@ -1,10 +1,9 @@
-const Eris = require('eris');
-const fs = require('fs');
-const https = require('https');
-const config = require('../config');
-const {promisify} = require('util');
+const fs = require("fs");
+const https = require("https");
+const config = require("../config");
+const {promisify} = require("util");
 
-const getUtils = () => require('../utils');
+const getUtils = () => require("../utils");
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
@@ -54,8 +53,8 @@ async function saveAttachment(attachment) {
 function saveAttachmentInner(attachment, tries = 0) {
   return new Promise((resolve, reject) => {
     if (tries > 3) {
-      console.error('Attachment download failed after 3 tries:', attachment);
-      reject('Attachment download failed after 3 tries');
+      console.error("Attachment download failed after 3 tries:", attachment);
+      reject("Attachment download failed after 3 tries");
       return;
     }
 
@@ -64,13 +63,13 @@ function saveAttachmentInner(attachment, tries = 0) {
 
     https.get(attachment.url, (res) => {
       res.pipe(writeStream);
-      writeStream.on('finish', () => {
+      writeStream.on("finish", () => {
         writeStream.end();
         resolve();
       });
-    }).on('error', (err) => {
+    }).on("error", () => {
       fs.unlink(filepath);
-      console.error('Error downloading attachment, retrying');
+      console.error("Error downloading attachment, retrying");
       resolve(saveAttachmentInner(attachment, tries++));
     });
   });
@@ -78,7 +77,7 @@ function saveAttachmentInner(attachment, tries = 0) {
 
 /**
  * Attempts to download and save all attachments in the given message
- * @param {Eris.Message} msg
+ * @param {Eris~Message} msg
  * @returns {Promise}
  */
 function saveAttachmentsInMessage(msg) {
@@ -93,7 +92,7 @@ function saveAttachmentsInMessage(msg) {
  * @returns {String}
  */
 function getUrl(attachmentId, desiredName = null) {
-  if (desiredName == null) desiredName = 'file.bin';
+  if (desiredName == null) desiredName = "file.bin";
   return getUtils().getSelfUrl(`attachments/${attachmentId}/${desiredName}`);
 }
 

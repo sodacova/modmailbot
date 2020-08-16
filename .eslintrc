@@ -12,7 +12,8 @@
   },
 
   "env": {
-    "node": true
+    "node": true,
+    "es6": true
   },
 
   "rules": {
@@ -24,6 +25,10 @@
         "!": true,
         "!!": true
       }
-    }]
+    }],
+    "quotes": "error",
+    "semi": "error",
+    "no-prototype-builtins": "off",
+    "no-empty": "off"
   }
 }

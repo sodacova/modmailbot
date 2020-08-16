@@ -1,4 +1,4 @@
-const threads = require('./data/threads');
+const threads = require("./data/threads");
 const utils = require("./utils");
 
 /**

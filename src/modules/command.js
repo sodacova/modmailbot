@@ -1,6 +1,5 @@
-const config = require('../config');
-const utils = require('../utils');
-const threadUtils = require('../threadUtils');
+const config = require("../config");
+const threadUtils = require("../threadUtils");
 
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
@@ -11,7 +10,7 @@ module.exports = bot => {
 	}
 
 	const msgArray = [];
-	const prefix = '?';
+	const prefix = "?";
 	const name = `${command.name}`;
 
 	if (command.aliases && command.aliases.length > 1) {
@@ -27,7 +26,7 @@ module.exports = bot => {
 	}
 
 	if (command.commands) {
-		msgArray.push('**Sub Commands:**');
+		msgArray.push("**Sub Commands:**");
 		for (const cmd of command.commands) {
 			if (cmd.default) {
 				continue;
@@ -37,28 +36,28 @@ module.exports = bot => {
 	}
 
 	if (command.usage) {
-		if (typeof command.usage === 'string') {
+		if (typeof command.usage === "string") {
 			const usage = `${command.usage}`;
 			msgArray.push(`**Usage:** ${prefix}${usage}`);
 		} else {
-			msgArray.push('**Usage:** ');
+			msgArray.push("**Usage:** ");
 			for (const use of command.usage) {
 				msgArray.push(`\t${prefix}${use}`);
 			}
 		}
 	} else if (command.commands) {
-		msgArray.push('**Usage:** ');
+		msgArray.push("**Usage:** ");
 		for (const use of command.commands.map(c => c.usage)) {
 			msgArray.push(`\t${prefix}${use}`);
 		}
 	}
 
 	if (command.example) {
-		if (typeof command.example === 'string') {
+		if (typeof command.example === "string") {
 			const example = `${command.example}`;
 			msgArray.push(`**Example:** ${prefix}${example}`);
 		} else {
-			msgArray.push('**Example:**');
+			msgArray.push("**Example:**");
 			for (const ex of command.example) {
 				msgArray.push(`\t${prefix}${ex}`);
 			}
@@ -68,7 +67,7 @@ module.exports = bot => {
 	const embed = {
 		color: 1146534,
 		title: `**Command:** ${prefix}${name}`,
-		description: msgArray.join('\n'),
+		description: msgArray.join("\n"),
 	};
 
 	return embed;
@@ -77,11 +76,11 @@ module.exports = bot => {
   // Mods can reply to modmail threads using !r or !reply
 	// These messages get relayed back to the DM thread between the bot and the user
 	if (config.dataFactory) {
-		const commands = require('../data/commands');
-		addInboxServerCommand('command', async (msg, args, thread) => {
+		const commands = require("../data/commands");
+		addInboxServerCommand("command", async (msg, args, thread) => {
 			if (! thread) return;
 
-			const cmd = args.join(' ').trim();
+			const cmd = args.join(" ").trim();
 			if (! cmd) return;
 			let isAnonymous = false;
 
@@ -106,6 +105,6 @@ module.exports = bot => {
 			msg.delete();
 		});
 	
-		bot.registerCommandAlias('c', 'command');
+		bot.registerCommandAlias("c", "command");
 	}
 };

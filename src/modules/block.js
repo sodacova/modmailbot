@@ -1,15 +1,16 @@
-const threadUtils = require('../threadUtils');
+const threadUtils = require("../threadUtils");
+const attachments = require("../data/attachments");
 const blocked = require("../data/blocked");
-const config = require('../config');
+const config = require("../config");
 const utils = require("../utils");
 
 module.exports = bot => {
   const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
 
-  addInboxServerCommand('block', async (msg, args, thread) => {
+  addInboxServerCommand("block", async (msg, args, thread) => {
     async function block(userId) {
       const user = bot.users.get(userId);
-      await blocked.block(userId, (user ? `${user.username}#${user.discriminator}` : ''), msg.author.id);
+      await blocked.block(userId, (user ? `${user.username}#${user.discriminator}` : ""), msg.author.id);
       msg.channel.createMessage(`Blocked <@${userId}> (id ${userId}) from modmail`);
     }
 
@@ -17,10 +18,10 @@ module.exports = bot => {
 
     if (! thread && args.length > 0) {
       // User mention/id as argument
-      const userId = utils.getUserMention(args.join(' '));
+      const userId = utils.getUserMention(args.join(" "));
       if (! userId) return;
 
-      const reason = args.slice(1).join(' ').trim();
+      const reason = args.slice(1).join(" ").trim();
 
       if (reason && reason.length) {
         logText = `**Blocked:** ${thread.user_name} (${thread.user_id}) was blocked for ${reason}`;
@@ -30,14 +31,14 @@ module.exports = bot => {
 
       block(userId);
     } else if (thread) {
-      const reason = args.join(' ').trim();
+      const reason = args.join(" ").trim();
       let isAnonymous = false;
 
       if (config.replyAnonDefault === true) {
         isAnonymous = true;
       }
 
-      let text = `You have been blocked.`;
+      let text = "You have been blocked.";
 
       if (reason && reason.length) {
         text = `You have been blocked for ${reason}`;
@@ -54,7 +55,7 @@ module.exports = bot => {
     }
   });
 
-  addInboxServerCommand('unblock', (msg, args, thread) => {
+  addInboxServerCommand("unblock", (msg, args, thread) => {
     async function unblock(userId) {
       await blocked.unblock(userId);
       msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
@@ -64,10 +65,10 @@ module.exports = bot => {
 
     if (! thread && args.length > 0) {
       // User mention/id as argument
-      const userId = utils.getUserMention(args.join(' '));
+      const userId = utils.getUserMention(args.join(" "));
       if (! userId) return;
 
-      const reason = args.slice(1).join(' ').trim();
+      const reason = args.slice(1).join(" ").trim();
 
       if (reason && reason.length) {
         logText = `**Unblocked:** ${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
@@ -77,7 +78,7 @@ module.exports = bot => {
 
       unblock(userId);
     } else if (thread) {
-      const reason = args.join(' ').trim();
+      const reason = args.join(" ").trim();
 
       if (reason && reason.length) {
         logText = `**Unblocked:** ${thread.user_name} (${thread.user_id}) was unblocked for ${reason}`;
