@@ -29,6 +29,7 @@ const ping = require("./modules/ping");
 const fixAttachment = require("./modules/img");
 const pull = require("./modules/pull");
 const restart = require("./modules/restart");
+const info = require("./modules/info");
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
@@ -289,6 +290,7 @@ module.exports = {
     await fixAttachment(bot);
     await pull(bot);
     await restart(bot);
+    await info(bot);
 
     // Connect to Discord
     console.log("Connecting to Discord...");
