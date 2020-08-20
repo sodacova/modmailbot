@@ -13,7 +13,7 @@ let mainGuild = null;
 let logChannel = null;
 
 /**
- * @returns {Eris~Guild}
+ * @returns {Eris.Guild}
  */
 function getInboxGuild() {
   if (! inboxGuild) inboxGuild = bot.guilds.find(g => g.id === config.mailGuildId);
@@ -22,7 +22,7 @@ function getInboxGuild() {
 }
 
 /**
- * @returns {Eris~Guild}
+ * @returns {Eris.Guild}
  */
 function getMainGuild() {
   if (! mainGuild) mainGuild = bot.guilds.find(g => g.id === config.mainGuildId);
@@ -33,7 +33,7 @@ function getMainGuild() {
 /**
  * Returns the designated log channel, or the default channel if none is set
  * @param bot
- * @returns {Eris~TextChannel}
+ * @returns {Eris.TextChannel}
  */
 function getLogChannel() {
   const inboxGuild = getInboxGuild();
@@ -170,8 +170,8 @@ async function getSelfUrl(path = "") {
 
 /**
  * Returns the highest hoisted role of the given member
- * @param {Eris~Member} member
- * @returns {Eris~Role}
+ * @param {Eris.Member} member
+ * @returns {Eris.Role}
  */
 function getMainRole(member) {
   const roles = member.roles.map(id => member.guild.roles.get(id));

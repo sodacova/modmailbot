@@ -1,7 +1,9 @@
 {
   "root": true,
 
-  "extends": "eslint:recommended",
+  "plugins": ["jsdoc"],
+
+  "extends": ["eslint:recommended"],
 
   "parserOptions": {
     "ecmaVersion": 2020,
@@ -29,6 +31,7 @@
     "quotes": "error",
     "semi": "error",
     "no-prototype-builtins": "off",
-    "no-empty": "off"
+    "no-empty": "off",
+    "jsdoc/no-undefined-types": 1
   }
 }

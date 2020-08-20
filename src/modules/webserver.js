@@ -1,3 +1,5 @@
+const Eris = require("eris");
+const SSE = require("express-sse");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const mime = require("mime");
@@ -11,23 +13,36 @@ const threads = require("../data/threads");
 const attachments = require("../data/attachments");
 const knex = require("../knex");
 
+const THREAD_ID = /^[0-9a-f-]+$/;
+const ID = /^\d+$/;
+
+/**
+ * @param {express.Response} res
+ */
 function notfound(res) {
   res.status(404);
   res.json({ message: "404: Resource Not Found" });
 }
 
+/**
+ * @param {String} threadId
+ */
 async function getLogs (threadId) {
-  if (threadId.match(/^[0-9a-f-]+$/) === null)
+  if (threadId.match(THREAD_ID) === null)
     return;
 
   const thread = await threads.findById(threadId);
   if (! thread) return;
   
-  return await thread.getThreadMessages();
+  return thread.getThreadMessages();
 }
 
+/**
+ * @param {String} id
+ * @param {String} desiredFilename 
+ */
 function getAttachment (id, desiredFilename) {
-  if (! /^\d+$/.test(id))
+  if (! ID.test(id))
     return;
   if (desiredFilename.match(/^[0-9a-z._-]+$/i) === null)
     return;
@@ -38,9 +53,13 @@ function getAttachment (id, desiredFilename) {
 
   const filenameParts = desiredFilename.split(".");
   const ext = (filenameParts.length > 1 ? filenameParts[filenameParts.length - 1] : "bin");
-  return [mime.lookup(ext), fs.readFileSync(attachmentPath)];
+  return [mime.getType(ext), fs.readFileSync(attachmentPath)];
 }
 
+/**
+ * @param {Eris.CommandClient} bot
+ * @param {SSE} sse
+ */
 module.exports = (bot, sse) => {
   const app = express();
   
@@ -52,7 +71,7 @@ module.exports = (bot, sse) => {
     if (! attachment)
       return notfound(res);
 
-    res.set("Content-Type", mime);
+    res.set("Content-Type", `${mime}`);
     res.send(attachment);
   });
 
@@ -68,8 +87,11 @@ module.exports = (bot, sse) => {
   });
 
   app.get("/threads", async (req, res) => {
-    let { limit, page, user, sort_by, reverse } = req.query;
-    limit = parseInt(limit) || 50;
+    /**
+     * @type {{ [s: string]: any; }}
+     */
+    let { limit: lim, page, user, sort_by, reverse } = req.query;
+    let limit = parseInt(lim) || 50;
     if (limit < 1) limit = 1;
     if (limit > 100) limit = 100;
     page = parseInt(page) || 0;

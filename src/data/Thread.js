@@ -1,4 +1,6 @@
 const moment = require("moment");
+const Eris = require("eris");
+const SSE = require("express-sse");
 
 const bot = require("../bot");
 const knex = require("../knex");
@@ -28,10 +30,11 @@ class Thread {
   }
 
   /**
-   * @param {Eris~Member} moderator
+   * @param {Eris.Member} moderator
    * @param {String} text
-   * @param {Eris~MessageFile[]} replyAttachments
-   * @param {Boolean} isAnonymous
+   * @param {Eris.Attachment[]} [replyAttachments=[]]
+   * @param {Boolean} [isAnonymous=false]
+   * @param {SSE} [sse]
    * @returns {Promise<void>}
    */
   async replyToUser(moderator, text, replyAttachments = [], isAnonymous = false, sse) {
@@ -102,10 +105,10 @@ class Thread {
   }
 
   /**
-   * @param {Eris~Member} moderator
-   * @param {String} text
-   * @param {Eris~MessageFile[]} replyAttachments
-   * @param {Boolean} isAnonymous
+   * @param {Eris.Member} moderator
+   * @param {Eris.MessageContent} message
+   * @param {{ _id: any; name: string; _state: number; }} command
+   * @param {Boolean} [isAnonymous=false]
    * @returns {Promise<void>}
    */
   async sendCommandToUser(moderator, message, command, isAnonymous = false) {
@@ -164,7 +167,8 @@ class Thread {
   }
 
   /**
-   * @param {Eris~Message} msg
+   * @param {Eris.Message} msg
+   * @param {SSE} sse
    * @returns {Promise<void>}
    */
   async receiveUserReply(msg, sse) {
@@ -219,12 +223,12 @@ class Thread {
         await this.cancelScheduledClose();
         systemMessage = await this.postSystemMessage({
           content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
-          disableEveryone: false
+          allowedMentions: { everyone: false }
         });
       } else {
         systemMessage = await this.postSystemMessage({
           content: `<@!${this.scheduled_close_id}> The thread was updated, use \`!close cancel\` if you would like to cancel.`,
-          disableEveryone: false
+          allowedMentions: { everyone: false }
         });
       }
 
@@ -235,7 +239,7 @@ class Thread {
   }
 
   /**
-   * @returns {Promise<PrivateChannel>}
+   * @returns {Promise<Eris.PrivateChannel>}
    */
   getDMChannel() {
     return bot.getDMChannel(this.user_id);
@@ -243,8 +247,8 @@ class Thread {
 
   /**
    * @param {String} text
-   * @param {Eris~MessageFile|Eris~MessageFile[]} file
-   * @returns {Promise<Eris~Message>}
+   * @param {Eris.MessageFile|Eris.MessageFile[]} [file=null]
+   * @returns {Promise<Eris.Message<Eris.PrivateChannel>>}
    * @throws Error
    */
   async postToUser(text, file = null) {
@@ -259,16 +263,18 @@ class Thread {
   }
 
   /**
-   * @returns {Promise<Eris~Message>}
+   * @param {Eris.MessageContent} content
+   * @param {Eris.MessageFile|Eris.MessageFile[]} [file]
+   * @returns {Promise<Eris.Message<Eris.GuildTextableChannel>>}
    */
-  async postToThreadChannel(...args) {
+  async postToThreadChannel(content, file) {
     try {
-      return await bot.createMessage(this.channel_id, ...args);
+      return bot.createMessage(this.channel_id, content, file);
     } catch (e) {
       // Channel not found
       if (e.code === 10003) {
         console.log(`[INFO] Auto-closing thread with ${this.user_name} because the channel no longer exists`);
-        this.close(true);
+        this.close(bot.user);
       } else {
         throw e;
       }
@@ -276,12 +282,12 @@ class Thread {
   }
 
   /**
-   * @param {String} text
-   * @param {*} args
-   * @returns {Promise<void>}
+   * @param {Eris.MessageContent} text
+   * @param {Eris.MessageFile|Eris.MessageFile[]} [file]
+   * @returns {Promise<Eris.Message<Eris.GuildTextableChannel>>}
    */
-  async postSystemMessage(text, ...args) {
-    const msg = await this.postToThreadChannel(text, ...args);
+  async postSystemMessage(text, file) {
+    const msg = await this.postToThreadChannel(text, file);
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.SYSTEM,
       user_id: null,
@@ -296,15 +302,17 @@ class Thread {
   }
 
   /**
-   * @param {*} args
+   * @param {Eris.MessageContent} content
+   * @param {Eris.MessageFile|Eris.MessageFile[]} [file]
    * @returns {Promise<void>}
    */
-  async postNonLogMessage(...args) {
-    await this.postToThreadChannel(...args);
+  async postNonLogMessage(content, file) {
+    await this.postToThreadChannel(content, file);
   }
 
   /**
-   * @param {Eris~Message} msg
+   * @param {Eris.Message<Eris.GuildTextableChannel>} msg
+   * @param {SSE} sse
    * @returns {Promise<void>}
    */
   async saveChatMessage(msg, sse) {
@@ -318,6 +326,11 @@ class Thread {
     }, sse);
   }
 
+  /**
+   * @param {Eris.Message<Eris.GuildTextableChannel>} msg
+   * @param {SSE} sse
+   * @returns {Promise<void>}
+   */
   async saveCommandMessage(msg, sse) {
     return this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.COMMAND,
@@ -330,7 +343,7 @@ class Thread {
   }
 
   /**
-   * @param {Eris~Message} msg
+   * @param {Eris.Message} msg
    * @returns {Promise<void>}
    */
   async updateChatMessage(msg) {
@@ -354,7 +367,8 @@ class Thread {
   }
 
   /**
-   * @param {Object} data
+   * @param {{ [s: string]: any; }} data
+   * @param {SSE} [sse]
    * @returns {Promise<void>}
    */
   async addThreadMessageToDB(data, sse) {
@@ -369,7 +383,7 @@ class Thread {
     if (sse) {
       sse.send({
         message: threadMessage
-      }, "newMessage");
+      }, "newMessage", null);
     }
   }
 
@@ -387,6 +401,9 @@ class Thread {
   }
 
   /**
+   * @param {Eris.User|{ discriminator: string; id: string; username: string; }} author
+   * @param {Boolean} [silent=false]
+   * @param {SSE} [sse]
    * @returns {Promise<void>}
    */
   async close(author, silent = false, sse) {
@@ -420,9 +437,12 @@ class Thread {
         thread: await knex("threads")
           .where("id", this.id)
           .first()
-      }, "threadClose");
+      }, "threadClose", null);
 
     // Delete channel
+    /**
+     * @type {Eris.GuildTextableChannel}
+     */
     const channel = bot.getChannel(this.channel_id);
     if (channel) {
       console.log(`Deleting channel ${this.channel_id}`);
@@ -432,7 +452,7 @@ class Thread {
 
   /**
    * @param {String} time
-   * @param {Eris~User} user
+   * @param {Eris.User} user
    * @returns {Promise<void>}
    */
   async scheduleClose(time, user) {

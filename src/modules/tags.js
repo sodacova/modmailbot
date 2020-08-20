@@ -1,14 +1,16 @@
+const Eris = require("eris");
 const config = require("../config");
 const threadUtils = require("../threadUtils");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
   // Mods can reply to modmail threads using !r or !reply
   // These messages get relayed back to the DM thread between the bot and the user
   if (config.dataFactory) {
     const tags = require("../data/tags");
-    addInboxServerCommand("tag", async (msg, args, thread) => {
+    threadUtils.addInboxServerCommand(bot, "tag", async (msg, args, thread) => {
       if (! thread) return;
 
       const tag = args.join(" ").trim();

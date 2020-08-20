@@ -1,12 +1,14 @@
+const Eris = require("eris");
 const threads = require("../data/threads");
 const snippets = require("../data/snippets");
 const config = require("../config");
 const utils = require("../utils");
 const threadUtils = require("../threadUtils");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
   /**
    * When a staff member uses a snippet (snippet prefix + trigger word), find the snippet and post it as a reply in the thread
    */
@@ -30,7 +32,7 @@ module.exports = bot => {
   });
 
   // Show or add a snippet
-  addInboxServerCommand("snippet", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "snippet", async (msg, args, thread) => {
     const trigger = args[0];
     if (! trigger) return;
 
@@ -68,7 +70,7 @@ module.exports = bot => {
 
   bot.registerCommandAlias("s", "snippet");
 
-  addInboxServerCommand("delete_snippet", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "delete_snippet", async (msg, args, thread) => {
     const trigger = args[0];
     if (! trigger) return;
 
@@ -84,7 +86,7 @@ module.exports = bot => {
 
   bot.registerCommandAlias("ds", "delete_snippet");
 
-  addInboxServerCommand("edit_snippet", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "edit_snippet", async (msg, args, thread) => {
     const trigger = args[0];
     if (! trigger) return;
 
@@ -107,7 +109,7 @@ module.exports = bot => {
 
   bot.registerCommandAlias("es", "edit_snippet");
 
-  addInboxServerCommand("snippets", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "snippets", async (msg, args, thread) => {
     const allSnippets = await snippets.all();
     const triggers = allSnippets.map(s => s.trigger);
     triggers.sort();

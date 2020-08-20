@@ -1,13 +1,15 @@
+const Eris = require("eris");
 const threadUtils = require("../threadUtils");
 const notes = require("../data/notes");
 const utils = require("../utils");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
   // Mods can add notes to a user which modmail will display at the start of threads using !n or !note
   // These messages get relayed back to the DM thread between the bot and the user
-  addInboxServerCommand("note", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "note", async (msg, args, thread) => {
     if (! thread) return;
     let text = args.join(" ");
     let userNotes = await notes.get(thread.user_id);
@@ -25,7 +27,7 @@ module.exports = bot => {
 
   bot.registerCommandAlias("n", "note");
 
-  addInboxServerCommand("notes", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "notes", async (msg, args, thread) => {
     if (! thread) return;
     let userNotes = await notes.get(thread.user_id);
     if (! userNotes || ! userNotes.length) {
@@ -39,7 +41,7 @@ module.exports = bot => {
 
   bot.registerCommandAlias("ns", "notes");
 
-  addInboxServerCommand("edit_note", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "edit_note", async (msg, args, thread) => {
     if (! thread) return;
     let userNotes = await notes.get(thread.user_id);
     if(! userNotes && ! userNotes.length) {
@@ -62,7 +64,7 @@ module.exports = bot => {
 
   bot.registerCommandAlias("en", "edit_note");
 
-  addInboxServerCommand("delete_note", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "delete_note", async (msg, args, thread) => {
     if (! thread) return;
     let userNotes = await notes.get(thread.user_id);
     if (! userNotes || ! userNotes.length) {

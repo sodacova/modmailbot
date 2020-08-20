@@ -1,11 +1,20 @@
+const Eris = require("eris");
+
 const childProcess = require("child_process");
 const threadUtils = require("../threadUtils");
 
 const GIT_VALIDATOR = /^git[\w\d\s-"'/.]+$/;
 
+/**
+ * @param {String} command
+ * @param {childProcess.ExecOptions} [options]
+ */
 async function exec(command, options) { // My very elaborate asynchronous streamed execution function, you're welcome
   return new Promise((res, rej) => {
     let output = "";
+    /**
+     * @param {Buffer|String} data 
+     */
     const writeFunction = (data) => {
       output += `${data}`; // Buffer.toString()
     };
@@ -25,10 +34,11 @@ async function exec(command, options) { // My very elaborate asynchronous stream
   });
 }
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("git", async (msg, args) => {
+  threadUtils.addInboxServerCommand(bot, "git", async (msg, args) => {
     const command = `git ${args.join(" ")}`;
     if (! GIT_VALIDATOR.test(command)) return msg.channel.createMessage("no.");
 

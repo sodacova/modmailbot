@@ -1,3 +1,6 @@
+/**
+ * @type {typeof import('../types/datafactory').DataFactory}
+ */
 const DataFactory = require("@dyno.gg/datafactory");
 const config = require("./config");
 

@@ -1,10 +1,12 @@
+const Eris = require("eris");
 const config = require("../config");
 const threadUtils = require("../threadUtils");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("purge", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "purge", async (msg, args, thread) => {
     if (! thread) return;
 
     if (! config.inboxAdminRoleId) {
@@ -12,15 +14,16 @@ module.exports = bot => {
 	}
 
 	if (msg.member.roles && msg.member.roles.includes(config.inboxAdminRoleId)) {
+		// @ts-ignore
 		const channel = await bot.getDMChannel(thread.user_id);
 		if (! channel || ! channel.id) {
 			return thread.postSystemMessage("Error getting DM Channel");
 		}
 
-		let messages = await bot.getMessages(channel.id, 100);
-		messages = messages.filter(m => m.author.id === bot.user.id).map(m => m.id);
+		const msgs = await bot.getMessages(channel.id, 100);
+		let messages = msgs.filter(m => m.author.id === bot.user.id).map(m => m.id);
 
-		if (args.length > 0 && ! isNaN(args[0])) {
+		if (args.length > 0 && ! isNaN(Number(args[0]))) {
 			messages = messages.slice(0, parseInt(args[0], 10));
 		}
 
@@ -40,16 +43,17 @@ module.exports = bot => {
 
 	bot.registerCommandAlias("p", "purge");
 	
-	addInboxServerCommand("undo", async (msg, args, thread) => {
+	threadUtils.addInboxServerCommand(bot, "undo", async (msg, args, thread) => {
 		if (! thread) return;
 
+		// @ts-ignore
 		const channel = await bot.getDMChannel(thread.user_id);
 		if (! channel || ! channel.id) {
 			return thread.postSystemMessage("Error getting DM Channel");
 		}
 
-		let message = await bot.getMessages(channel.id, 100);
-		message = message.filter(m => m.author.id === bot.user.id)[0];
+		const messages = await bot.getMessages(channel.id, 100);
+		const message = messages.filter(m => m.author.id === bot.user.id)[0];
 
 		if (message) {
 			try {

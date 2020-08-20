@@ -19,7 +19,7 @@ async function isBlocked(userId) {
  * @param {String} userId
  * @param {String} userName
  * @param {String} blockedBy
- * @returns {Promise}
+ * @returns {Promise<number[]>}
  */
 async function block(userId, userName = "", blockedBy = null) {
   if (await isBlocked(userId)) return;
@@ -36,7 +36,7 @@ async function block(userId, userName = "", blockedBy = null) {
 /**
  * Unblocks the given userId
  * @param {String} userId
- * @returns {Promise}
+ * @returns {Promise<number>}
  */
 async function unblock(userId) {
   return knex("blocked_users")

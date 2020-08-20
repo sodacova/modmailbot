@@ -1,7 +1,12 @@
 const path = require("path");
 const fs = require("fs");
+const Eris = require("eris");
 const config = require("../config");
 
+/**
+ * 
+ * @param {Eris.CommandClient} bot 
+ */
 module.exports = bot => {
   if (! config.enableGreeting) return;
 

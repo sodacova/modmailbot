@@ -1,13 +1,18 @@
+const Eris = require("eris");
 const threadUtils = require("../threadUtils");
 const threads = require("../data/threads");
 const moment = require("moment");
 const config = require("../config");
 const utils = require("../utils");
 
+/**
+ * @param {Eris.CommandClient} bot 
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("logs", (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "logs", (msg, args, thread) => {
+    /**
+     * @param {String} userId 
+     */
     async function getLogs(userId) {
       const userThreads = await threads.getClosedThreadsByUserId(userId);
       // Descending by date
@@ -30,12 +35,18 @@ module.exports = bot => {
       const lines = message.split("\n");
       const chunks = utils.chunk(lines, 15);
       
+      /**
+       * @type {Promise<Eris.Message|void>}
+       */
       let root = Promise.resolve();
       chunks.forEach(lines => {
         root = root.then(() => msg.channel.createMessage(lines.join("\n")));
       });
     }
 
+    /**
+     * @param {String} userId 
+     */
     async function deleteLogs(userId) {
       await threads.deleteClosedThreadsByUserId(userId);
       msg.channel.createMessage(`Deleted log files for <@!${userId}>`);
@@ -65,7 +76,7 @@ module.exports = bot => {
     }
   });
 
-  addInboxServerCommand("loglink", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "loglink", async (msg, args, thread) => {
     if (! thread) return;
     const logUrl = await thread.getLogUrl();
     thread.postSystemMessage(`Log URL: <${logUrl}>`);

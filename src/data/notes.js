@@ -1,10 +1,11 @@
 const moment = require("moment");
 const knex = require("../knex");
 const Note = require("./Note");
+const Eris = require("eris");
 
 /**
  * @param {String} user
- * @returns {Promise<Snippet>}
+ * @returns {Promise<Note[]>}
  */
 async function getNotes(user) {
   const notes = await knex("notes")
@@ -17,7 +18,7 @@ async function getNotes(user) {
 /**
  * @param {String} user
  * @param {String} note
- * @param {String} author
+ * @param {Eris.User} author
  * @returns {Promise<void>}
  */
 async function addNote(user, note, author) {
@@ -49,7 +50,8 @@ async function deleteNote(user, id) {
  * @param {String} user
  * @param {Number} id
  * @param {String} note
- * @param {String} author
+ * @param {Eris.User} author
+ * @returns {Promise<Number>}
  */
 async function editNote(user, id, note, author) {
   let notes = await getNotes(user);

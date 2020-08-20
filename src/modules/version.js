@@ -1,3 +1,4 @@
+const Eris = require("eris");
 const path = require("path");
 const fs = require("fs");
 const {promisify} = require("util");
@@ -9,10 +10,11 @@ const readFile = promisify(fs.readFile);
 
 const GIT_DIR = path.join(__dirname, "..", "..", ".git");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("version", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "version", async (msg, args, thread) => {
     const packageJson = require("../../package.json");
     const packageVersion = packageJson.version;
 

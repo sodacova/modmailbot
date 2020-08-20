@@ -1,13 +1,17 @@
+const Eris = require("eris");
+const SSE = require("express-sse");
 const attachments = require("../data/attachments");
 const config = require("../config");
 const threadUtils = require("../threadUtils");
 
+/**
+ * @param {Eris.CommandClient} bot
+ * @param {SSE} sse
+ */
 module.exports = (bot, sse) => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
   // Mods can reply to modmail threads using !r or !reply
   // These messages get relayed back to the DM thread between the bot and the user
-  addInboxServerCommand("reply", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "reply", async (msg, args, thread) => {
     if (! thread) return;
 
     const text = args.join(" ").trim();
@@ -25,7 +29,7 @@ module.exports = (bot, sse) => {
   bot.registerCommandAlias("r", "reply");
 
   // Anonymous replies only show the role, not the username
-  addInboxServerCommand("anonreply", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "anonreply", async (msg, args, thread) => {
     if (! thread) return;
 
     const text = args.join(" ").trim();

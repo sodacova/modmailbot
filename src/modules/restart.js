@@ -1,9 +1,11 @@
+const Eris = require("eris");
 const threadUtils = require("../threadUtils");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("restart", (msg) => {
+  threadUtils.addInboxServerCommand(bot, "restart", (msg) => {
     msg.channel.createMessage("Restarting...").then(() => process.exit(1));
   }, {
     requirements: {

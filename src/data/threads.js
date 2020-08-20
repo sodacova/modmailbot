@@ -2,6 +2,7 @@ const transliterate = require("transliteration");
 const moment = require("moment");
 const uuid = require("uuid");
 const humanizeDuration = require("humanize-duration");
+const Eris = require("eris");
 
 const bot = require("../bot");
 const knex = require("../knex");
@@ -39,7 +40,7 @@ async function findOpenThreadByUserId(userId) {
 
 /**
  * Creates a new modmail thread for the specified user
- * @param {Eris~User} user
+ * @param {Eris.User} user
  * @param {Boolean} quiet If true, doesn't ping mentionRole or reply with responseMessage
  * @returns {Promise<Thread>}
  * @throws {Error}
@@ -85,7 +86,7 @@ async function createNewThreadForUser(user, quiet = false) {
     if (config.mentionRole) {
       await newThread.postNonLogMessage({
         content: `${utils.getInboxMention()}New modmail thread (${newThread.user_name})`,
-        disableEveryone: false
+        allowedMentions: { everyone: false }
       });
     }
     

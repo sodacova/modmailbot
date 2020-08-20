@@ -1,13 +1,15 @@
+const Eris = require("eris");
 const threadUtils = require("../threadUtils");
 const utils = require("../utils");
 const threads = require("../data/threads");
 const humanizeDuration = require("humanize-duration");
 const notes = require("../data/notes");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("info", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "info", async (msg, args, thread) => {
     if (! thread) return;
 
     const user = bot.users.get(thread.user_id);

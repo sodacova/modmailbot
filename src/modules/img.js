@@ -1,15 +1,26 @@
+const Eris = require("eris");
 const threadUtils = require("../threadUtils");
 const { getSelfUrl, regEscape } = require("../utils");
 
 const DISCORD_REGEX = /(https:\/\/(canary\.|beta\.)?discord(app)?\.com\/channels\/\d{17,19}\/\d{17,19}\/)?\d{17,19}/g;
+/**
+ * @param {String} str 
+ */
 const REPLACE_REGEX = (str) => new RegExp(regEscape(str), "g");
+/**
+ * @param {String} str 
+ */
 const ATTACHMENT_REGEX = (str) => new RegExp(`${regEscape(str)}(?:(?! ).)*`, "g");
+/**
+ * @param {String} str 
+ */
 const DISCORD_ATTACHMENT_REGEX = (str) => new RegExp(str, "g");
 
+/**
+ * @param {Eris.CommandClient} bot
+ */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("img", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "img", async (msg, args, thread) => {
     if (! thread) return;
     if (! args.length) return msg.channel.createMessage("<:dynoError:696561633425621078> Provide message or attachment URL(s)");
     const [selfURL, dmChannel] = await Promise.all([getSelfUrl("/attachments"), bot.getDMChannel(thread.user_id)]);
