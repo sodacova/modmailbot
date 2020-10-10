@@ -43,7 +43,7 @@ module.exports = bot => {
 
     const attachments = msg.content.match(ATTACHMENT_REGEX(selfURL));
     if (! attachments.length) return msg.channel.createMessage("<:dynoError:696561633425621078> Could not find an attachment");
-    const urls = attachments.join("\n").replace(DISCORD_ATTACHMENT_REGEX(selfURL), `https://cdn.discordapp.com/attachments/${dmChannel.id}/`);
+    const urls = attachments.join("\n").replace(DISCORD_ATTACHMENT_REGEX(selfURL), `https://cdn.discordapp.com/attachments/${dmChannel.id}`);
     msg.channel.createMessage(urls);
   });
 
