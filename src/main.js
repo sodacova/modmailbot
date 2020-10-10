@@ -27,7 +27,7 @@ const notes = require("./modules/notes");
 const idcmd = require("./modules/id");
 const ping = require("./modules/ping");
 const fixAttachment = require("./modules/img");
-const pull = require("./modules/pull");
+const git = require("./modules/git");
 const restart = require("./modules/restart");
 const info = require("./modules/info");
 
@@ -320,7 +320,7 @@ module.exports = {
     await idcmd(bot);
     await ping(bot);
     await fixAttachment(bot);
-    await pull(bot);
+    await git(bot);
     await restart(bot);
     await info(bot);
 
