@@ -36,7 +36,7 @@ module.exports = bot => {
         return null;
       }
     }));
-    discordURLs.filter((value, index, self) => value && self.findIndex(i => i[0] === value[0])).forEach(s => {
+    discordURLs.filter((value, index, self) => value && self.findIndex(i => i[0] === value[0]) !== -1).forEach(s => {
       const [url, content] = s;
       msg.content = msg.content.replace(REPLACE_REGEX(url), content);
     });
