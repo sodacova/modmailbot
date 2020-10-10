@@ -243,5 +243,6 @@ module.exports = {
   deleteClosedThreadsByUserId,
   findOrCreateThreadForUser,
   getThreadsThatShouldBeClosed,
-    createThreadInDB
+  createThreadInDB,
+  getClosedThreadCountByUserId,
 };
