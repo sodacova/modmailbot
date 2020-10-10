@@ -23,7 +23,7 @@ module.exports = bot => {
   threadUtils.addInboxServerCommand(bot, "img", async (msg, args, thread) => {
     if (! thread) return;
     if (! args.length) return msg.channel.createMessage("<:dynoError:696561633425621078> Provide message or attachment URL(s)");
-    const [selfURL, dmChannel] = await Promise.all([getSelfUrl("/attachments"), bot.getDMChannel(thread.user_id)]);
+    const [selfURL, dmChannel] = await Promise.all([getSelfUrl("attachments"), bot.getDMChannel(thread.user_id)]);
     if (! dmChannel) return;
 
     const discordURLs = await Promise.all(msg.content.match(DISCORD_REGEX).map(async url => {
