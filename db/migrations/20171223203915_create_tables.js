@@ -26,6 +26,7 @@ exports.up = async function(knex) {
     table.mediumtext("body").notNullable();
     table.integer("is_anonymous").unsigned().notNullable();
     table.string("dm_message_id", 20).nullable().unique();
+    table.string("thread_message_id", 20).nullable().unique();
     table.dateTime("created_at").notNullable().index();
   });
 
