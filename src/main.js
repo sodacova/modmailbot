@@ -33,6 +33,7 @@ const info = require("./modules/info");
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
+const { mainGuildId } = require("./config");
 
 const messageQueue = new Queue();
 const sse = new SSE();
@@ -216,6 +217,7 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
   if (! msg || ! msg.author) return;
   if (msg.author.bot) return;
   if (await blocked.isBlocked(msg.author.id)) return;
+  if (msg.content.length > 1900) return msg.channel.createMessage(`Your edited message (${utils.discordURL("@me", msg.channel.id, msg.id)}) is too long to be recieved by Dave. (${msg.content.length}/1900)`);
 
   // Old message content doesn't persist between bot restarts
   const oldContent = oldMessage && oldMessage.content || "*Unavailable due to bot restart*";
@@ -227,9 +229,11 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
   // 1) Edit in DMs
   if (msg.channel instanceof Eris.PrivateChannel) {
     const thread = await threads.findOpenThreadByUserId(msg.author.id);
-    const editMessage = utils.disableLinkPreviews(`**The user edited their message:**\n\`B:\` ${oldContent}\n\`A:\` ${newContent}`);
+    const oldThreadMessage = await thread.getThreadMessageFromDM(msg);
+    const editMessage = utils.disableLinkPreviews(`**EDITED ${utils.discordURL(mainGuildId, thread.channel_id, oldThreadMessage.thread_message_id)}:**\n${newContent}`);
 
-    thread.postSystemMessage(editMessage);
+    const newThreadMessage = await thread.postSystemMessage(editMessage);
+    thread.updateChatMessage(msg, newThreadMessage);
   }
 
   // 2) Edit in the thread
@@ -237,7 +241,7 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
     const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
     if (! thread) return;
 
-    thread.updateChatMessage(msg);
+    thread.updateChatMessage(msg, msg);
   }
 });
 

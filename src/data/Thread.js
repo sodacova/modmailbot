@@ -30,8 +30,7 @@ class Thread {
   }
 
   /**
-   * @param {Eris.Member} moderator
-   * @param {String} text
+   * @param {Eris.Message} msg
    * @param {Eris.Attachment[]} [replyAttachments=[]]
    * @param {Boolean} [isAnonymous=false]
    * @param {SSE} [sse]
@@ -83,7 +82,7 @@ class Thread {
     }
 
     // Send the reply to the modmail thread
-    await this.postToThreadChannel(threadContent, files);
+    const threadMessage = await this.postToThreadChannel(threadContent, files);
 
     // Add the message to the database
     await this.addThreadMessageToDB({
@@ -92,7 +91,8 @@ class Thread {
       user_name: logModUsername,
       body: logContent,
       is_anonymous: (isAnonymous ? 1 : 0),
-      dm_message_id: dmMessage.id
+      dm_message_id: dmMessage.id,
+      thread_message_id: threadMessage.id,
     }, sse);
 
     if (this.scheduled_close_at) {
@@ -145,7 +145,7 @@ class Thread {
     }
 
     // Send the reply to the modmail thread
-    await this.postToThreadChannel(threadContent);
+    const threadMessage = await this.postToThreadChannel(threadContent);
 
     // Add the message to the database
     await this.addThreadMessageToDB({
@@ -154,7 +154,8 @@ class Thread {
       user_name: logModUsername,
       body: logContent,
       is_anonymous: (isAnonymous ? 1 : 0),
-      dm_message_id: dmMessage.id
+      dm_message_id: dmMessage.id,
+      thread_message_id: threadMessage.id,
     });
 
     if (this.scheduled_close_at) {
@@ -203,14 +204,15 @@ class Thread {
       }
     }
 
-    await this.postToThreadChannel(threadContent, attachmentFiles);
+    const threadMessge = await this.postToThreadChannel(threadContent, attachmentFiles);
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
       user_name: `${msg.author.username}#${msg.author.discriminator}`,
       body: logContent,
       is_anonymous: 0,
-      dm_message_id: msg.id
+      dm_message_id: msg.id,
+      thread_message_id: threadMessge.id,
     }, sse);
 
     if (this.scheduled_close_at) {
@@ -294,7 +296,8 @@ class Thread {
       user_name: "",
       body: typeof text === "string" ? text : text.content,
       is_anonymous: 0,
-      dm_message_id: msg.id
+      dm_message_id: msg.id,
+      thread_message_id: msg.id,
     });
 
     // return the message so we can delete it if we want.
@@ -322,7 +325,8 @@ class Thread {
       user_name: `${msg.author.username}#${msg.author.discriminator}`,
       body: msg.content,
       is_anonymous: 0,
-      dm_message_id: msg.id
+      dm_message_id: msg.id,
+      thread_message_id: msg.id,
     }, sse);
   }
 
@@ -338,21 +342,31 @@ class Thread {
       user_name: `${msg.author.username}#${msg.author.discriminator}`,
       body: msg.content,
       is_anonymous: 0,
-      dm_message_id: msg.id
+      dm_message_id: msg.id,
+      thread_message_id: msg.id,
     }, sse);
   }
 
   /**
    * @param {Eris.Message} msg
+   * @param {Eris.Message} threadMessage
    * @returns {Promise<void>}
    */
-  async updateChatMessage(msg) {
+  async updateChatMessage(msg, threadMessage) {
     await knex("thread_messages")
       .where("thread_id", this.id)
       .where("dm_message_id", msg.id)
       .update({
-        body: msg.content
+        body: msg.content,
+        thread_message_id: threadMessage.id,
       });
+  }
+
+  async getThreadMessageFromDM(msg) {
+    return knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("dm_message_id", msg.id)
+      .first();
   }
 
   /**

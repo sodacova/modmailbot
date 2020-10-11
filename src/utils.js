@@ -1,3 +1,4 @@
+const Eris = require("eris");
 const bot = require("./bot");
 const moment = require("moment");
 const publicIp = require("public-ip");
@@ -278,6 +279,10 @@ function regEscape(str) {
   return str.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 }
 
+function discordURL(guildID, channelID, messageID) {
+  return `https://discord.com/channels/${guildID}/${channelID}/${messageID}`;
+}
+
 module.exports = {
   BotError,
 
@@ -309,4 +314,5 @@ module.exports = {
   setDataModelProps,
 
   regEscape,
+  discordURL,
 };
