@@ -3,3 +3,5 @@ exports.up = async (knex) => {
     table.string("thread_message_id", 20).nullable().unique();
   });
 };
+
+exports.down = () => {};
