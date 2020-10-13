@@ -6,6 +6,6 @@ exports.up = async (knex) => {
 
 exports.down = async (knex) => {
   await knex.schema.table("thread_messages", (table) => {
-    table.dropUnique("thread_message_id");
+    table.dropColumn("thread_message_id");
   });
 };
