@@ -217,7 +217,7 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
   if (! msg || ! msg.author) return;
   if (msg.author.bot) return;
   if (await blocked.isBlocked(msg.author.id)) return;
-  if (msg.content.length > 1900) return msg.channel.createMessage(`Your edited message (${utils.discordURL("@me", msg.channel.id, msg.id)}) is too long to be recieved by Dave. (${msg.content.length}/1900)`);
+  if (msg.content.length > 1900) return msg.channel.createMessage(`Your edited message (<${utils.discordURL("@me", msg.channel.id, msg.id)}>) is too long to be recieved by Dave. (${msg.content.length}/1900)`);
 
   // Old message content doesn't persist between bot restarts
   const oldContent = oldMessage && oldMessage.content || "*Unavailable due to bot restart*";
@@ -230,7 +230,7 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
   if (msg.channel instanceof Eris.PrivateChannel) {
     const thread = await threads.findOpenThreadByUserId(msg.author.id);
     const oldThreadMessage = await thread.getThreadMessageFromDM(msg);
-    const editMessage = utils.disableLinkPreviews(`**EDITED ${utils.discordURL(mainGuildId, thread.channel_id, oldThreadMessage.thread_message_id)}:**\n${newContent}`);
+    const editMessage = `**EDITED <${utils.discordURL(mainGuildId, thread.channel_id, oldThreadMessage.thread_message_id)}>:**\n${newContent}`;
 
     const newThreadMessage = await thread.postSystemMessage(editMessage);
     thread.updateChatMessage(msg, newThreadMessage);
