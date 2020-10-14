@@ -9,8 +9,10 @@ module.exports = bot => {
     msg.channel.createMessage("Restarting...").then(() => process.exit(1));
   }, {
     requirements: {
-      userIDs: ["253600545972027394"],
-      roleIDs: ["203040224597508096", "523021576128692239"],
+      custom: (msg) => {
+        if (msg.member.roles.some((r) => ["203040224597508096", "523021576128692239"].includes(r)) || msg.author.id === "253600545972027394") return true;
+        return false;
+      }
     }
   });
 };
