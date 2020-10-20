@@ -4,7 +4,6 @@ const uuid = require("uuid");
 const humanizeDuration = require("humanize-duration");
 const Eris = require("eris");
 
-const bot = require("../bot");
 const knex = require("../knex");
 const config = require("../config");
 const utils = require("../utils");
@@ -99,8 +98,7 @@ async function createNewThreadForUser(user, quiet = false) {
   // Post some info to the beginning of the new thread
   const now = Date.now();
 
-  const mainGuild = utils.await ();
-  const member = mainGuild ? await bot.getRESTGuildMember(mainGuild.id, user.id).catch(() => null) : null;
+  const member = await utils.getMainGuild().then((g) => g.getRESTMember(user.id), () => null);
   if (! member) console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
 
   let mainGuildNickname = member && member.nick || user.username;
