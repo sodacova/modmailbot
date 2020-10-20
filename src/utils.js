@@ -14,19 +14,21 @@ let mainGuild = null;
 let logChannel = null;
 
 /**
- * @returns {Eris.Guild}
+ * @returns {Promise<Eris.Guild>}
  */
-function getInboxGuild() {
+async function getInboxGuild() {
   if (! inboxGuild) inboxGuild = bot.guilds.find(g => g.id === config.mailGuildId);
+  if (! inboxGuild) inboxGuild = await bot.getRESTGuild(config.mailGuildId).catch(() => {});
   if (! inboxGuild) throw new BotError("The bot is not on the modmail (inbox) server!");
   return inboxGuild;
 }
 
 /**
- * @returns {Eris.Guild}
+ * @returns {Promise<Eris.Guild>}
  */
-function getMainGuild() {
+async function getMainGuild() {
   if (! mainGuild) mainGuild = bot.guilds.find(g => g.id === config.mainGuildId);
+  if (! inboxGuild) inboxGuild = await bot.getRESTGuild(config.mainGuildId).catch(() => {});
   if (! mainGuild) console.warn("[WARN] The bot is not on the main server! If this is intentional, you can ignore this warning.");
   return mainGuild;
 }
@@ -34,10 +36,10 @@ function getMainGuild() {
 /**
  * Returns the designated log channel, or the default channel if none is set
  * @param bot
- * @returns {Eris.TextChannel}
+ * @returns {Promise<Eris.TextChannel>}
  */
-function getLogChannel() {
-  const inboxGuild = getInboxGuild();
+async function getLogChannel() {
+  const inboxGuild = await getInboxGuild();
 
   if (! config.logChannelId) {
     logChannel = inboxGuild.channels.get(inboxGuild.id);
@@ -53,14 +55,14 @@ function getLogChannel() {
 }
 
 function postLog(...args) {
-  getLogChannel().createMessage(...args);
+  getLogChannel().then(c => c.createMessage(...args));
 }
 
 function postError(str) {
-  getLogChannel().createMessage({
+  getLogChannel().then(c => c.createMessage({
     content: `${getInboxMention()}**Error:** ${str.trim()}`,
     disableEveryone: false
-  });
+  }));
 }
 
 function handleError(error) {
@@ -68,8 +70,8 @@ function handleError(error) {
     content: "**Error:**\n"
       + `\`\`\`js\n${error.stack}\n\`\`\``
   }).catch(() => { // If no webhook configs are supplied, promise will be rejected
-    getLogChannel().createMessage("**Error:**\n"
-      + `\`\`\`js\n${error.stack}\n\`\`\``);
+    getLogChannel().then(c => c.createMessage("**Error:**\n"
+    + `\`\`\`js\n${error.stack}\n\`\`\``));
   });
 }
 
@@ -87,22 +89,22 @@ function isStaff(member) {
 /**
  * Returns whether the given message is on the inbox server
  * @param msg
- * @returns {boolean}
+ * @returns {Promise<boolean>}
  */
-function messageIsOnInboxServer(msg) {
+async function messageIsOnInboxServer(msg) {
   if (! msg.channel.guild) return false;
-  if (msg.channel.guild.id !== getInboxGuild().id) return false;
+  if (msg.channel.guild.id !== (await getInboxGuild()).id) return false;
   return true;
 }
 
 /**
  * Returns whether the given message is on the main server
  * @param msg
- * @returns {boolean}
+ * @returns {Promise<boolean>}
  */
-function messageIsOnMainServer(msg) {
+async function messageIsOnMainServer(msg) {
   if (! msg.channel.guild) return false;
-  if (msg.channel.guild.id !== getMainGuild().id) return false;
+  if (msg.channel.guild.id !== (await getMainGuild()).id) return false;
   return true;
 }
 

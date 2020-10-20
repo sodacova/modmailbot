@@ -90,7 +90,7 @@ bot.on("guildAvailable", guild => {
  * 2) If alwaysReply is disabled, save that message as a chat message in the thread
  */
 bot.on("messageCreate", async msg => {
-  if (! utils.messageIsOnInboxServer(msg)) return;
+  if (! (await utils.messageIsOnInboxServer(msg))) return;
   if (msg.author.bot) return;
 
   const thread = await threads.findByChannelId(msg.channel.id);
@@ -237,7 +237,7 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
   }
 
   // 2) Edit in the thread
-  else if (utils.messageIsOnInboxServer(msg) && utils.isStaff(msg.member)) {
+  else if ((await utils.messageIsOnInboxServer(msg)) && utils.isStaff(msg.member)) {
     const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
     if (! thread) return;
 
@@ -248,7 +248,7 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
 async function deleteMessage(thread, msg) {
   if (! msg.author) return;
   if (msg.author.bot) return;
-  if (! utils.messageIsOnInboxServer(msg)) return;
+  if (! (await utils.messageIsOnInboxServer(msg))) return;
   if (! utils.isStaff(msg.member)) return;
 
   thread.deleteChatMessage(msg.id);
@@ -287,16 +287,16 @@ bot.on("messageCreate", async msg => {
 			return m.edit(`Pong! \`${diff}ms\``);
 		});
   }
-  if (! utils.messageIsOnMainServer(msg)) return;
+  if (! (await utils.messageIsOnMainServer(msg))) return;
   if (! msg.mentions.some(user => user.id === bot.user.id)) return;
 
   // If the person who mentioned the modmail bot is also on the modmail server, ignore them
-  if (utils.getInboxGuild().members.get(msg.author.id)) return;
+  if ((await utils.getInboxGuild()).members.get(msg.author.id)) return;
 
   // If the person who mentioned the bot is blocked, ignore them
   if (await blocked.isBlocked(msg.author.id)) return;
 
-  bot.createMessage(utils.getLogChannel(bot).id, {
+  bot.createMessage((await utils.getLogChannel(bot)).id, {
     content: `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`,
     disableEveryone: false,
   });
@@ -306,27 +306,27 @@ module.exports = {
   async start() {
     // Load modules
     console.log("Loading modules...");
-    await reply(bot, sse);
-    await purge(bot);
-    await tags(bot);
-    await command(bot);
-    await close(bot, sse);
-    await logs(bot);
-    await block(bot);
-    await move(bot);
-    await snippets(bot);
-    await suspend(bot);
-    await notes(bot);
-    await greeting(bot);
-    await typingProxy(bot);
-    await version(bot);
-    await newthread(bot, sse);
-    await idcmd(bot);
-    await ping(bot);
-    await fixAttachment(bot);
-    await git(bot);
-    await restart(bot);
-    await info(bot);
+    reply(bot, sse);
+    purge(bot);
+    tags(bot);
+    command(bot);
+    close(bot, sse);
+    logs(bot);
+    block(bot);
+    move(bot);
+    snippets(bot);
+    suspend(bot);
+    notes(bot);
+    greeting(bot);
+    typingProxy(bot);
+    version(bot);
+    newthread(bot, sse);
+    idcmd(bot);
+    ping(bot);
+    fixAttachment(bot);
+    git(bot);
+    restart(bot);
+    info(bot);
 
     // Connect to Discord
     console.log("Connecting to Discord...");

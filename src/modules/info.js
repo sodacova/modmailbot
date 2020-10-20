@@ -15,7 +15,7 @@ module.exports = bot => {
     const now = Date.now();
 
     const user = bot.users.get(thread.user_id);
-    const mainGuild = utils.getMainGuild();
+    const mainGuild = utils.await ();
     const member = mainGuild ? await bot.getRESTGuildMember(mainGuild.id, user.id).catch(() => null) : null;
   
     let mainGuildNickname = member && member.nick || user.username;

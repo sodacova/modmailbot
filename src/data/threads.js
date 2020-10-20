@@ -64,7 +64,7 @@ async function createNewThreadForUser(user, quiet = false) {
   // Attempt to create the inbox channel for this thread
   let createdChannel;
   try {
-    createdChannel = await utils.getInboxGuild().createChannel(channelName, null, "New ModMail thread", config.newThreadCategoryId);
+    createdChannel = await utils.getInboxGuild().then(g => g.createChannel(channelName, null, "New ModMail thread", config.newThreadCategoryId));
   } catch (err) {
     console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
     throw err;
@@ -99,7 +99,7 @@ async function createNewThreadForUser(user, quiet = false) {
   // Post some info to the beginning of the new thread
   const now = Date.now();
 
-  const mainGuild = utils.getMainGuild();
+  const mainGuild = utils.await ();
   const member = mainGuild ? await bot.getRESTGuildMember(mainGuild.id, user.id).catch(() => null) : null;
   if (! member) console.log(`[INFO] Member ${user.id} not found in main guild ${config.mainGuildId}`);
 

@@ -13,7 +13,7 @@ module.exports = bot => {
    * When a staff member uses a snippet (snippet prefix + trigger word), find the snippet and post it as a reply in the thread
    */
   bot.on("messageCreate", async msg => {
-    if (! utils.messageIsOnInboxServer(msg)) return;
+    if (! (await utils.messageIsOnInboxServer(msg))) return;
     if (! utils.isStaff(msg.member)) return;
 
     if (msg.author.bot) return;

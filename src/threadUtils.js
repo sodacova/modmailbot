@@ -13,7 +13,7 @@ const Thread = require("./data/Thread"); // eslint-disable-line no-unused-vars
  */
 function addInboxServerCommand(bot, cmd, commandHandler, opts) {
   bot.registerCommand(cmd, async (msg, args) => {
-    if (! utils.messageIsOnInboxServer(msg)) return;
+    if (! utils.await messageIsOnInboxServer(msg)) return;
     if (! utils.isStaff(msg.member)) return;
 
     const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
