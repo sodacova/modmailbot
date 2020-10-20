@@ -87,7 +87,7 @@ module.exports = (bot, sse) => {
   // Auto-close threads if their channel is deleted
   bot.on("channelDelete", async (channel) => {
     if (! (channel instanceof Eris.TextChannel)) return;
-    if (channel.guild.id !== utils.await getInboxGuild().id) return;
+    if (channel.guild.id !== (await utils.getInboxGuild().id)) return;
     const thread = await threads.findOpenThreadByChannelId(channel.id);
     if (! thread) return;
 
