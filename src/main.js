@@ -215,6 +215,7 @@ bot.on("messageCreate", async msg => {
  */
 bot.on("messageUpdate", async (msg, oldMessage) => {
   if (! msg || ! msg.author) return;
+  if (! (msg.channel instanceof Eris.PrivateChannel) || ! (await utils.messageIsOnInboxServer(msg)) && utils.isStaff(msg.member)) return;
   if (msg.author.bot) return;
   if (await blocked.isBlocked(msg.author.id)) return;
   if (msg.content.length > 1900) return msg.channel.createMessage(`Your edited message (<${utils.discordURL("@me", msg.channel.id, msg.id)}>) is too long to be recieved by Dave. (${msg.content.length}/1900)`);
