@@ -30,6 +30,7 @@ const fixAttachment = require("./modules/img");
 const git = require("./modules/git");
 const restart = require("./modules/restart");
 const info = require("./modules/info");
+const setavatar = require("./modules/setavatar");
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
@@ -175,13 +176,13 @@ bot.on("messageCreate", async msg => {
               if (! msg.content.toLowerCase().startsWith(match.toLowerCase())) return false;
               return true;
             }
-      
+
             if (o.wildcard) {
               text = `.*${utils.regEscape(match)}.*`;
             } else {
               text = `^${utils.regEscape(match)}$`;
             }
-      
+
             return msg.content.match(new RegExp(text, "i"));
           };
 
@@ -328,6 +329,7 @@ module.exports = {
     git(bot);
     restart(bot);
     info(bot);
+    setavatar(bot);
 
     // Connect to Discord
     console.log("Connecting to Discord...");
