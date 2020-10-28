@@ -6,12 +6,12 @@ const config = require("../config");
 const utils = require("../utils");
 
 /**
- * @param {Eris.CommandClient} bot 
+ * @param {Eris.CommandClient} bot
  */
 module.exports = bot => {
   threadUtils.addInboxServerCommand(bot, "logs", (msg, args, thread) => {
     /**
-     * @param {String} userId 
+     * @param {String} userId
      */
     async function getLogs(userId) {
       const userThreads = await threads.getClosedThreadsByUserId(userId);
@@ -21,10 +21,10 @@ module.exports = bot => {
         if (a.created_at < b.created_at) return 1;
         return 0;
       });
-      
+
       const threadLines = await Promise.all(userThreads.map(async thread => {
         const logUrl = await thread.getLogUrl();
-        const formattedDate = moment.utc(thread.created_at).format("MMM Do [at] HH:mm [UTC]");
+        const formattedDate = moment.utc(thread.created_at).format("MMM Do YYYY [at] HH:mm [UTC]");
         return `\`${formattedDate}\`: <${logUrl}>`;
       }));
 
@@ -34,7 +34,7 @@ module.exports = bot => {
       // Send the list of logs in chunks of 15 lines per message
       const lines = message.split("\n");
       const chunks = utils.chunk(lines, 15);
-      
+
       /**
        * @type {Promise<Eris.Message|void>}
        */
@@ -45,7 +45,7 @@ module.exports = bot => {
     }
 
     /**
-     * @param {String} userId 
+     * @param {String} userId
      */
     async function deleteLogs(userId) {
       await threads.deleteClosedThreadsByUserId(userId);
