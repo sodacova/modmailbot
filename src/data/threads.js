@@ -85,7 +85,6 @@ async function createNewThreadForUser(user, quiet = false) {
     if (config.mentionRole) {
       await newThread.postNonLogMessage({
         content: `${utils.getInboxMention()}New modmail thread (${newThread.user_name})`,
-        allowedMentions: { everyone: false }
       });
     }
     

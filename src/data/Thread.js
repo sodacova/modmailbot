@@ -225,12 +225,10 @@ class Thread {
         await this.cancelScheduledClose();
         systemMessage = await this.postSystemMessage({
           content: `<@!${this.scheduled_close_id}> Thread that was scheduled to be closed got a new reply. Cancelling.`,
-          allowedMentions: { everyone: false }
         });
       } else {
         systemMessage = await this.postSystemMessage({
           content: `<@!${this.scheduled_close_id}> The thread was updated, use \`!close cancel\` if you would like to cancel.`,
-          allowedMentions: { everyone: false }
         });
       }
 
