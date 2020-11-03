@@ -23,7 +23,7 @@ module.exports = bot => {
 
       return bot.editSelf({ avatar: newav })
         .then(() => msg.channel.createMessage("<:dynoSuccess:696561641227288639> Successfully changed avatar."))
-        .catch((err) => new Error(err));
+        .catch((err) => msg.channel.createMessage(`<:dynoError:314691684455809024> Couldn\'t change avatar.\n${err}`));
 
       } catch (err) {
         new Error(err);
