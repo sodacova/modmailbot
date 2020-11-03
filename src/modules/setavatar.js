@@ -1,7 +1,6 @@
 const Eris = require("eris");
 const threadUtils = require("../threadUtils");
 const axios = require("axios");
-const utils = require('../utils')
 
 const validate_img = /^http(s)?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+\.(?:png|jpg|gif|webp)$/;
 
@@ -24,7 +23,7 @@ module.exports = bot => {
 
       return bot.editSelf({ avatar: newav })
         .then(() => msg.channel.createMessage("<:dynoSuccess:696561641227288639> Successfully changed avatar."))
-        .catch((err) => utils.handleError(err));
+        .catch((err) => new Error(err));
 
       } catch (err) {
         new Error(err);
