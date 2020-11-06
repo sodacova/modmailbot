@@ -18,6 +18,7 @@ const bot = new Eris.CommandClient(config.token, {
   defaultCommandOptions: {
     caseInsensitive: true,
   },
+  argsSplitter: (str) => str.split(" ")
 });
 
 module.exports = bot;

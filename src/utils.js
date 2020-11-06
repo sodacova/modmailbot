@@ -83,7 +83,7 @@ function handleError(error) {
 function isStaff(member) {
   if (! config.inboxServerPermission) return true;
   if (! member) return false;
-  return member.permission.has(config.inboxServerPermission);
+  return member.permissions.has(config.inboxServerPermission);
 }
 
 /**

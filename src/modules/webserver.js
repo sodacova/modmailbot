@@ -131,7 +131,7 @@ module.exports = (bot, sse) => {
     res.json(logs);
   });
   app.get("/avatars/:id", async (req, res) => {
-    superagent.get(`https://discordapp.com/api/users/${req.params.id}`)
+    superagent.get(`https://discord.com/api/users/${req.params.id}`)
     .set("Authorization", bot.token)
     .end((error, response) => {
       if (error) {
@@ -160,7 +160,7 @@ module.exports = (bot, sse) => {
             "1cbd08c76f8af6dddce02c5138971129"
           ];
           let avatar = defaultAvatars[user.discriminator % defaultAvatars.length];
-          res.redirect(`https://discordapp.com/assets/${avatar}.png`);
+          res.redirect(`https://discord.com/assets/${avatar}.png`);
         }
       }
     }); 

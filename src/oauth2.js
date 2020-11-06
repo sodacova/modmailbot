@@ -7,11 +7,11 @@ const utils = require("./utils");
 function login (req, res) {
   utils.getSelfUrl(config.redirectPath.slice(1)).then(redirectUri => {
     let code = req.query.code;
-    const oauth2url = `https://discordapp.com/oauth2/authorize?client_id=${config.clientId}`
+    const oauth2url = `https://discord.com/oauth2/authorize?client_id=${config.clientId}`
       + `&scope=identify&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}`;
     if (! code)
       return res.redirect(oauth2url);
-    superagent.post("https://discordapp.com/api/oauth2/token")
+    superagent.post("https://discord.com/api/oauth2/token")
     .type("form")
     .send({
       client_id: config.clientId,
@@ -40,7 +40,7 @@ async function checkAuth (req, res, next) {
     let token = req.cookies.token;
     try {
       let accessToken = jwt.verify(token, config.clientSecret).token;
-      let response = await superagent.get("https://discordapp.com/api/users/@me")
+      let response = await superagent.get("https://discord.com/api/users/@me")
       .set("Authorization", `Bearer ${accessToken}`);
       req.user = response.body;
     } catch (err) {

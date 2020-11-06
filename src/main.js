@@ -298,8 +298,12 @@ bot.on("messageCreate", async msg => {
   if (await blocked.isBlocked(msg.author.id)) return;
 
   bot.createMessage((await utils.getLogChannel(bot)).id, {
-    content: `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.cleanContent}"`,
-    disableEveryone: false,
+    content: `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.content}"`,
+    allowedMentions: {
+      everyone: false,
+      roles: false,
+      users: false,
+    }
   });
 });
 
