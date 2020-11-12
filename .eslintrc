@@ -33,6 +33,7 @@
     "no-prototype-builtins": "off",
     "no-empty": "off",
     "jsdoc/no-undefined-types": 1,
-    "no-undef": "error"
+    "no-undef": "error",
+    "no-const-assign": "error"
   }
 }
