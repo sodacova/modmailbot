@@ -32,6 +32,7 @@
     "semi": "error",
     "no-prototype-builtins": "off",
     "no-empty": "off",
-    "jsdoc/no-undefined-types": 1
+    "jsdoc/no-undefined-types": 1,
+    "no-undef": "error"
   }
 }
