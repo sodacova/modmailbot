@@ -20,7 +20,7 @@ module.exports = bot => {
       } // Something happened with request
       return msg.channel.createMessage("<:dynoError:696561633425621078> Unable to send request: " + error.message);
     }
-    const newav = `data:${response.headers["content-type"]};base64,${response.data.toString("base64")}`;
+    const newav = `data:${response.headers["content-type"]};base64,${response.body.toString("base64")}`;
     return bot.editSelf({ avatar: newav }).then(
       () => msg.channel.createMessage("<:dynoSuccess:696561641227288639> Successfully changed avatar"),
       (e) => msg.channel.createMessage("<:dynoError:696561633425621078> Unable to change avatar: " + e)
