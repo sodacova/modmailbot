@@ -31,6 +31,7 @@ const git = require("./modules/git");
 const restart = require("./modules/restart");
 const info = require("./modules/info");
 const setavatar = require("./modules/setavatar");
+const dmlink = require("./modules/dmlink");
 
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
@@ -334,6 +335,7 @@ module.exports = {
     restart(bot);
     info(bot);
     setavatar(bot);
+    dmlink(bot);
 
     // Connect to Discord
     console.log("Connecting to Discord...");

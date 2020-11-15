@@ -367,6 +367,13 @@ class Thread {
       .first();
   }
 
+  async getThreadMessageFromThread(msg) {
+    return knex("thread_messages")
+      .where("thread_id", this.id)
+      .where("thread_message_id", msg.id)
+      .first();
+  }
+
   /**
    * @param {String} messageId
    * @returns {Promise<void>}
