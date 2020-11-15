@@ -311,6 +311,10 @@ bot.on("messageCreate", async msg => {
 
 module.exports = {
   async start() {
+    // Connect to Discord
+    console.log("Connecting to Discord...");
+    await bot.connect();
+
     // Load modules
     console.log("Loading modules...");
     reply(bot, sse);
@@ -336,9 +340,5 @@ module.exports = {
     info(bot);
     setavatar(bot);
     dmlink(bot);
-
-    // Connect to Discord
-    console.log("Connecting to Discord...");
-    await bot.connect();
   }
 };
