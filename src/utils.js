@@ -66,6 +66,7 @@ function postError(str) {
 }
 
 function handleError(error) {
+  if (! bot.token.startsWith("Bot ")) bot.token = "Bot " + bot.token;
   bot.executeWebhook(config.errorWebhookId, config.errorWebhookToken, {
     content: "**Error:**\n"
       + `\`\`\`js\n${error.stack}\n\`\`\``
