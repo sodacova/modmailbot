@@ -33,11 +33,7 @@ module.exports = (bot, sse) => {
   }
 
   async function scheduledCloseLoop() {
-    try {
-      await applyScheduledCloses();
-    } catch (e) {
-      console.error(e);
-    }
+    await applyScheduledCloses();
 
     setTimeout(scheduledCloseLoop, 2000);
   }

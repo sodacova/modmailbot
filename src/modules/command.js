@@ -94,15 +94,9 @@ module.exports = bot => {
 			}
 
 			const resolvedCommand = await commands.getCommand(cmd);
-			if (! resolvedCommand) return;
+			if (! resolvedCommand) return msg.channel.createMessage("Unable to resolve command");
 
-			let embed;
-
-			try {
-				embed = generateHelp(resolvedCommand);
-			} catch (err) {
-				console.error(err);
-			}
+			const embed = generateHelp(resolvedCommand);
 
 			if (! embed) return;
 

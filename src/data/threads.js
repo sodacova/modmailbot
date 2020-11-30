@@ -65,7 +65,7 @@ async function createNewThreadForUser(user, quiet = false) {
   try {
     createdChannel = await utils.getInboxGuild().then(g => g.createChannel(channelName, null, "New ModMail thread", config.newThreadCategoryId));
   } catch (err) {
-    console.error(`Error creating modmail channel for ${user.username}#${user.discriminator}!`);
+    err.name = `Error creating modmail channel for ${user.username}#${user.discriminator}!\n${err.name}`;
     throw err;
   }
 
