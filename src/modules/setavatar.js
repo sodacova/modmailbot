@@ -1,5 +1,4 @@
 const Eris = require("eris");
-const threadUtils = require("../threadUtils");
 const superagent = require("superagent");
 
 const VALIDATE_IMG = /^http(s)?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+\.(?:png|jpg|gif|webp)$/;
@@ -8,7 +7,7 @@ const VALIDATE_IMG = /^http(s)?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*
  * @param {Eris.CommandClient} bot
  */
 module.exports = bot => {
-  threadUtils.addInboxServerCommand(bot, "setavatar", async (msg, args) => {
+  bot.createMessage("setavatar", async (msg, args) => {
     let url = args[0];
     if (! VALIDATE_IMG.test(url)) return msg.channel.createMessage("<:dynoError:696561633425621078> Invalid image URL");
     let response;

@@ -3,7 +3,6 @@ const path = require("path");
 const fs = require("fs");
 const {promisify} = require("util");
 const utils = require("../utils");
-const threadUtils = require("../threadUtils");
 
 const access = promisify(fs.access);
 const readFile = promisify(fs.readFile);
@@ -14,7 +13,10 @@ const GIT_DIR = path.join(__dirname, "..", "..", ".git");
  * @param {Eris.CommandClient} bot
  */
 module.exports = bot => {
-  threadUtils.addInboxServerCommand(bot, "version", async (msg, args, thread) => {
+  bot.registerCommand("version", async (msg) => {
+    if (! (await utils.messageIsOnInboxServer(msg))) return;
+    if (! utils.isStaff(msg.member)) return;
+
     const packageJson = require("../../package.json");
     const packageVersion = packageJson.version;
 
@@ -44,6 +46,6 @@ module.exports = bot => {
       response += ` (${commitHash.slice(0, 7)})`;
     }
 
-    utils.postSystemMessageWithFallback(msg.channel, thread, response);
+    msg.channel.createMessage(response);
   });
 };

@@ -1,7 +1,6 @@
 const Eris = require("eris");
 
 const childProcess = require("child_process");
-const threadUtils = require("../threadUtils");
 
 const GIT_VALIDATOR = /^git[\w\d\s-"'/.]+$/;
 
@@ -38,7 +37,7 @@ async function exec(command, options) { // My very elaborate asynchronous stream
  * @param {Eris.CommandClient} bot
  */
 module.exports = bot => {
-  threadUtils.addInboxServerCommand(bot, "git", async (msg, args) => {
+  bot.registerCommand("git", async (msg, args) => {
     const command = `git ${args.join(" ")}`;
     if (! GIT_VALIDATOR.test(command)) return msg.channel.createMessage("no.");
 
