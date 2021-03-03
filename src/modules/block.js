@@ -9,11 +9,9 @@ const utils = require("../utils");
  * @param {Eris.CommandClient} bot
  */
 module.exports = bot => {
-  const addInboxServerCommand = (...args) => threadUtils.addInboxServerCommand(bot, ...args);
-
-  addInboxServerCommand("block", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "block", async (msg, args, thread) => {
     /**
-     * @param {String} userId 
+     * @param {Eris.User} user 
      */
     async function block(user) {
       await blocked.block(user.id, `${user.username}#${user.discriminator}`, msg.author.id);
@@ -69,7 +67,7 @@ module.exports = bot => {
     }
   });
 
-  addInboxServerCommand("unblock", async (msg, args, thread) => {
+  threadUtils.addInboxServerCommand(bot, "unblock", async (msg, args, thread) => {
     async function unblock(userId) {
       await blocked.unblock(userId);
       msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
