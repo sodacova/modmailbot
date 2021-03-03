@@ -94,6 +94,7 @@ bot.on("guildAvailable", guild => {
 bot.on("messageCreate", async msg => {
   if (! (await utils.messageIsOnInboxServer(msg))) return;
   if (msg.author.bot) return;
+  if (! utils.isStaff(msg.member)) return; // Only run if messages are sent by moderators to avoid a ridiculous number of DB calls
 
   const thread = await threads.findByChannelId(msg.channel.id);
   if (! thread) return;
@@ -104,7 +105,6 @@ bot.on("messageCreate", async msg => {
     thread.saveCommandMessage(msg);
   } else if (config.alwaysReply) {
     // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
-    if (! utils.isStaff(msg.member)) return; // Only staff are allowed to reply
 
     if (msg.attachments.length) await attachments.saveAttachmentsInMessage(msg);
     await thread.replyToUser(msg.member, msg.content.trim(), msg.attachments, config.alwaysReplyAnon || false, sse);
@@ -261,6 +261,7 @@ async function deleteMessage(thread, msg) {
  * When a staff message is deleted in a modmail thread, delete it from the database as well
  */
 bot.on("messageDelete", async msg => {
+  if (! utils.isStaff(msg.member)) return; // Only to prevent unnecessary DB calls, see first messageCreate event
   const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
   if (! thread) return;
 
@@ -268,7 +269,9 @@ bot.on("messageDelete", async msg => {
 });
 
 bot.on("messageDeleteBulk", async messages => {
-  const channel = messages[0].channel;
+  const {channel, member} = messages[0];
+
+  if (! utils.isStaff(member)) return; // Same as above
 
   const thread = await threads.findOpenThreadByChannelId(channel.id);
   if (! thread) return;
@@ -283,11 +286,11 @@ bot.on("messageDeleteBulk", async messages => {
  */
 bot.on("messageCreate", async msg => {
   if (msg.author.id === "155037590859284481" && msg.content === "$ping") {
-	let start = Date.now();
-	return msg.channel.createMessage("Pong! ")
-		.then(m => {
-			let diff = (Date.now() - start);
-			return m.edit(`Pong! \`${diff}ms\``);
+    let start = Date.now();
+    return msg.channel.createMessage("Pong! ")
+    .then(m => {
+        let diff = (Date.now() - start);
+        return m.edit(`Pong! \`${diff}ms\``);
 		});
   }
   if (! (await utils.messageIsOnMainServer(msg))) return;
