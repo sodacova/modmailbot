@@ -12,7 +12,7 @@
   "author": "",
   "dependencies": {
     "cookie-parser": "^1.4.5",
-    "eris": "^0.14.0",
+    "eris": "github:bsian03/eris#b2c63f3358fca0cde972a2cbd73f5b062905bd70",
     "express": "^4.17.1",
     "express-sse": "^0.5.3",
     "humanize-duration": "^3.23.1",
