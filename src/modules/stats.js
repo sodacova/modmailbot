@@ -6,7 +6,7 @@ module.exports = (bot) => {
   bot.registerCommand("stats", (msg) => {
     if (! utils.isStaff(msg.member)) return;
     msg.channel.createMessage(
-      `Process uptime: ${humanizeDuration(process.uptime() / 1000, { largest: 2 })}\n`
+      `Process uptime: ${humanizeDuration(process.uptime() * 1000, { largest: 2 })}\n`
       + `Bot uptime: ${humanizeDuration(bot.uptime, { largest: 2 })}\n`
       + `Memory Usage: ${process.memoryUsage().rss / 1024 / 1024}\nPID: ${process.pid}\nVersion: ${process.version}`
       // NOTE process.memoryUsage.rss() is in node 15.6 which is faster than process.memoryUsage().rss
