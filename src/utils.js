@@ -48,7 +48,9 @@ async function getLogChannel() {
   }
 
   if (! logChannel) {
-    throw new BotError("Log channel not found!");
+    logChannel = await bot.getRESTChannel(config.logChannelId || inboxGuild.id).catch(() => {
+      throw new BotError("Log channel not found!");
+    });
   }
 
   return logChannel;
@@ -67,6 +69,11 @@ function postError(str) {
 
 function handleError(error) {
   if (! bot.token.startsWith("Bot ")) bot.token = "Bot " + bot.token;
+  if (! config.errorWebhookId || ! config.errorWebhookToken) {
+    getLogChannel().then(c => c.createMessage("**Error:**\n"
+    + `\`\`\`js\n${error.stack}\n\`\`\``));
+    return;
+  }
   bot.executeWebhook(config.errorWebhookId, config.errorWebhookToken, {
     content: "**Error:**\n"
       + `\`\`\`js\n${error.stack}\n\`\`\``
