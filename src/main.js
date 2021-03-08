@@ -87,6 +87,8 @@ bot.on("guildAvailable", guild => {
   webInit = true;
 });
 
+bot.on("error", process.emit("unhandledRejection"));
+
 /**
  * When a moderator posts in a modmail thread...
  * 1) If alwaysReply is enabled, reply to the user
