@@ -28,7 +28,7 @@ async function getInboxGuild() {
  */
 async function getMainGuild() {
   if (! mainGuild) mainGuild = bot.guilds.find(g => g.id === config.mainGuildId);
-  if (! inboxGuild) inboxGuild = await bot.getRESTGuild(config.mainGuildId).catch(() => {});
+  if (! mainGuild) mainGuild = await bot.getRESTGuild(config.mainGuildId).catch(() => {});
   if (! mainGuild) console.warn("[WARN] The bot is not on the main server! If this is intentional, you can ignore this warning.");
   return mainGuild;
 }
