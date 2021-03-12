@@ -60,9 +60,9 @@ module.exports = (bot, sse) => {
           message = `Thread scheduled to close\nClosing at ${thread.scheduled_close_at}\nClosing by ${thread.scheduled_close_name} (${thread.scheduled_close_id})`;
         } else {
           message = "Thread is not scheduled to close";
-          thread.postSystemMessage(message);
-          return;
         }
+        thread.postSystemMessage(message);
+        return;
       }
 
       // Set a timed close
