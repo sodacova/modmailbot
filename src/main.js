@@ -87,7 +87,7 @@ bot.on("guildAvailable", guild => {
   webInit = true;
 });
 
-bot.on("error", process.emit("unhandledRejection"));
+bot.on("error", (e) => process.emit("unhandledRejection", e));
 
 /**
  * When a moderator posts in a modmail thread...
