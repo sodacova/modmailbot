@@ -6,15 +6,15 @@ const threads = require("../data/threads");
 
 /**
  * 
- * @param {Eris.CommandClient} bot 
- * @param {SSE} sse 
+ * @param {Eris.CommandClient} bot
+ * @param {SSE} sse
  */
 module.exports = (bot, sse) => {
   threadUtils.addInboxServerCommand(bot, "newthread", async (msg, args, thread) => {
     if (args.length === 0) return;
 
     const userId = utils.getUserMention(args[0]);
-    if (! userId) return;
+    if (! userId) return utils.postSystemMessageWithFallback(msg.channel, thread, "Please provide a user mention or ID!");
 
     const user = bot.users.get(userId);
     if (! user) {

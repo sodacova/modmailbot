@@ -28,7 +28,8 @@ module.exports = bot => {
         return `\`${formattedDate}\`: <${logUrl}>`;
       }));
 
-      if(! userThreads || ! userThreads.length) return msg.channel.createMessage("No logs found.");
+      if (! userThreads || ! userThreads.length) return msg.channel.createMessage("No logs found.");
+
       const message = `**Log files for <@${userId}>:**\n${threadLines.join("\n")}`;
 
       // Send the list of logs in chunks of 15 lines per message
@@ -55,7 +56,7 @@ module.exports = bot => {
     if (args.length > 0) {
       if (args[0] === "delete") {
         const userId = utils.getUserMention(args.slice(1).join(" "));
-        if (! userId) return;
+        if (! userId) return utils.postSystemMessageWithFallback(msg.channel, thread, "Please provide a user mention or ID!");
 
         if (! config.inboxAdminRoleId) {
           return;
@@ -68,7 +69,8 @@ module.exports = bot => {
 
       // User mention/id as argument
       const userId = utils.getUserMention(args.join(" "));
-      if (! userId) return;
+      if (! userId) return utils.postSystemMessageWithFallback(msg.channel, thread, "Please provide a user mention or ID!");
+
       getLogs(userId);
     } else if (thread) {
       // Calling !logs without args in a modmail thread returns the logs of the user of that thread

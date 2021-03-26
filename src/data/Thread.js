@@ -367,10 +367,10 @@ class Thread {
       .first();
   }
 
-  async getThreadMessageFromThread(msg) {
+  async getThreadMessageFromThread(msgID) {
     return knex("thread_messages")
       .where("thread_id", this.id)
-      .where("thread_message_id", msg.id)
+      .where("thread_message_id", msgID)
       .first();
   }
 
@@ -430,8 +430,8 @@ class Thread {
       console.log(`Closing thread ${this.id}`);
       await this.postToThreadChannel("Closing thread...");
     }
-    
-    if(! author) {
+
+    if (! author) {
       let newThread = await knex("threads")
         .where("id", this.id)
         .first();

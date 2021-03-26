@@ -4,15 +4,15 @@ const { getSelfUrl, regEscape } = require("../utils");
 
 const DISCORD_REGEX = /(https:\/\/(canary\.|beta\.)?discord(app)?\.com\/channels\/\d{17,19}\/\d{17,19}\/)?\d{17,19}/g;
 /**
- * @param {String} str 
+ * @param {String} str
  */
 const REPLACE_REGEX = (str) => new RegExp(regEscape(str), "g");
 /**
- * @param {String} str 
+ * @param {String} str
  */
 const ATTACHMENT_REGEX = (str) => new RegExp(`${regEscape(str)}(?:(?! ).)*`, "g");
 /**
- * @param {String} str 
+ * @param {String} str
  */
 const DISCORD_ATTACHMENT_REGEX = (str) => new RegExp(str, "g");
 
@@ -22,7 +22,7 @@ const DISCORD_ATTACHMENT_REGEX = (str) => new RegExp(str, "g");
 module.exports = bot => {
   threadUtils.addInboxServerCommand(bot, "img", async (msg, args, thread) => {
     if (! thread) return;
-    const [selfURL, dmChannel] = await Promise.all([getSelfUrl("attachments"), bot.getDMChannel(thread.user_id)]);
+    const [selfURL, dmChannel] = await Promise.all([getSelfUrl("attachments"), thread.getDMChannel()]);
     if (! dmChannel) return;
 
     const discordURLsRegex = msg.content.match(DISCORD_REGEX);

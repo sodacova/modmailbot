@@ -11,7 +11,7 @@ const utils = require("../utils");
 module.exports = bot => {
   threadUtils.addInboxServerCommand(bot, "block", async (msg, args, thread) => {
     /**
-     * @param {Eris.User} user 
+     * @param {Eris.User} user
      */
     async function block(user) {
       await blocked.block(user.id, `${user.username}#${user.discriminator}`, msg.author.id);
@@ -20,10 +20,10 @@ module.exports = bot => {
 
     let logText = "**Blocked:** ";
 
-    if (! thread && args.length > 0) {
+    if (! thread) {
       // User mention/id as argument
       const userId = utils.getUserMention(args.shift());
-      if (! userId) return;
+      if (! userId) return utils.postSystemMessageWithFallback(msg.channel, thread, "Please provide a user mention or ID!");
 
       const user = await bot.getRESTUser(userId).catch(() => null);
       if (! user) return utils.postSystemMessageWithFallback(msg.channel, thread, "User not found!");
@@ -39,7 +39,7 @@ module.exports = bot => {
       utils.postLog(logText);
 
       block(user);
-    } else if (thread) {
+    } else {
       const user = await bot.getRESTUser(thread.user_id);
       const reason = args.join(" ").trim();
       let isAnonymous = false;
@@ -75,10 +75,10 @@ module.exports = bot => {
 
     let logText = "**Unblocked:** ";
 
-    if (! thread && args.length > 0) {
+    if (! thread) {
       // User mention/id as argument
       const userId = utils.getUserMention(args.shift());
-      if (! userId) return;
+      if (! userId) return utils.postSystemMessageWithFallback(msg.channel, thread, "Please provide a user mention or ID!");
 
       const user = await bot.getRESTUser(userId).catch(() => null);
       if (! user) return utils.postSystemMessageWithFallback(msg.channel, thread, "User not found!");
@@ -95,7 +95,7 @@ module.exports = bot => {
       utils.postLog(logText);
 
       unblock(userId);
-    } else if (thread) {
+    } else {
       const reason = args.join(" ").trim();
 
       logText += `${thread.user_name} (${thread.user_id}) was unblocked`;
