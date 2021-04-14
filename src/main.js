@@ -37,6 +37,7 @@ const stats = require("./modules/stats");
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
 const { mainGuildId } = require("./config");
+const { TextChannel } = require("eris");
 
 const messageQueue = new Queue();
 const sse = new SSE();
@@ -313,6 +314,23 @@ bot.on("messageCreate", async msg => {
       users: false,
     }
   });
+});
+
+// If a modmail thread is manually deleted, close the thread automatically
+bot.on("channelDelete", async (channel) => {
+  if (! (channel instanceof TextChannel)) return;
+  if (channel.guild.id !== config.mailGuildId) return;
+
+  const thread = await threads.findOpenThreadByChannelId(channel.id);
+  if (thread) {
+    await thread.close(bot.user, false, sse);
+    
+    const logUrl = await thread.getLogUrl();
+    utils.postLog(
+      utils.trimAll(`Modmail thread with ${thread.user_name} (${thread.user_id}) was closed due to channel deletion
+      Logs: <${logUrl}>`)
+    );
+  }
 });
 
 module.exports = {
