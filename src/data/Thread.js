@@ -83,6 +83,7 @@ class Thread {
 
     // Send the reply to the modmail thread
     const threadMessage = await this.postToThreadChannel(threadContent, files);
+    if (! threadMessage) return; // This will be undefined if the channel is deleted
 
     // Add the message to the database
     await this.addThreadMessageToDB({
@@ -146,6 +147,7 @@ class Thread {
 
     // Send the reply to the modmail thread
     const threadMessage = await this.postToThreadChannel(threadContent);
+    if (! threadMessage) return; // This will be undefined if the channel is deleted
 
     // Add the message to the database
     await this.addThreadMessageToDB({
@@ -204,7 +206,9 @@ class Thread {
       }
     }
 
-    const threadMessge = await this.postToThreadChannel(threadContent, attachmentFiles);
+    const threadMessage = await this.postToThreadChannel(threadContent, attachmentFiles);
+    if (! threadMessage) return; // This will be undefined if the channel is deleted
+
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
       user_id: this.user_id,
@@ -212,7 +216,7 @@ class Thread {
       body: logContent,
       is_anonymous: 0,
       dm_message_id: msg.id,
-      thread_message_id: threadMessge.id,
+      thread_message_id: threadMessage.id,
     }, sse);
 
     if (this.scheduled_close_at) {
@@ -288,6 +292,7 @@ class Thread {
    */
   async postSystemMessage(text, file) {
     const msg = await this.postToThreadChannel(text, file);
+    if (! msg) return; // This will be undefined if the channel is deleted
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.SYSTEM,
       user_id: null,
