@@ -269,7 +269,7 @@ class Thread {
    */
   async postToThreadChannel(content, file) {
     try {
-      return bot.createMessage(this.channel_id, content, file);
+      return await bot.createMessage(this.channel_id, content, file);
     } catch (e) {
       // Channel not found
       if (e.code === 10003) {
