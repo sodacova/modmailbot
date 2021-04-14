@@ -42,6 +42,14 @@ module.exports = (bot, sse) => {
 
   // Close a thread. Closing a thread saves a log of the channel's contents and then deletes the channel.
   threadUtils.addInboxServerCommand(bot, "close", async (msg, args, thread) => {
+    if (args[0] === "missed") {
+      const threadsShouldClosed = await threads.getThreadsThatShouldBeClosed();
+      if (threadsShouldClosed.length === 0) return msg.channel.createMessage("No threads that should be closed");
+      const threadList = threadsShouldClosed.map((t) => `${t.user_name} (${t.user_id}) - <#${t.channel_id}>`).join("\n");
+
+      msg.channel.createMessage(threadList);
+    }
+
     if (! thread) return;
 
     // Timed close
