@@ -207,7 +207,7 @@ class Thread {
     }
 
     const threadMessage = await this.postToThreadChannel(threadContent, attachmentFiles);
-    if (! threadMessage) return; // This will be undefined if the channel is deleted
+    if (! threadMessage) return msg.channel.createMessage("The current thread was automatically closed due to an internal error. Please send another message to open a new thread.");
 
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
