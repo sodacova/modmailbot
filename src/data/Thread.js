@@ -1,16 +1,19 @@
 const moment = require("moment");
 const Eris = require("eris");
 const SSE = require("express-sse");
+const humanizeDuration = require("humanize-duration");
 
 const bot = require("../bot");
 const knex = require("../knex");
 const utils = require("../utils");
 const config = require("../config");
 const attachments = require("./attachments");
+const threads = require("./threads");
 
 const ThreadMessage = require("./ThreadMessage");
 
 const {THREAD_MESSAGE_TYPE, THREAD_STATUS} = require("./constants");
+const notes = require("./notes");
 
 /**
  * @property {String} id
@@ -314,6 +317,54 @@ class Thread {
    */
   async postNonLogMessage(content, file) {
     await this.postToThreadChannel(content, file);
+  }
+
+  async sendThreadInfo() {
+    const now = Date.now();
+    const user = bot.users.get(this.user_id);
+    const [
+      member,
+      userLogCount,
+      userNotes
+    ] = await Promise.all([
+      utils.getMainGuild().then((g) => g.getRESTMember(user.id)).catch(() => null),
+      threads.getClosedThreadCountByUserId(user.id),
+      notes.get(user.id),
+    ]);
+
+    const mainGuildNickname = member && `(${member.nick})`;
+
+    const accountAge = humanizeDuration(now - user.createdAt, {largest: 2});
+    const memberFor = member ? humanizeDuration(now - member.joinedAt, {largest: 2}) : "UNAVAILABLE";
+    const roles = member && member.roles.map((r) => member.guild.roles.get(r)).sort((a, b) => b.position - a.position);
+    const roleList = roles ? roles.map((r) => r.name).join(", ") || "NONE" : "UNAVAILABLE";
+    const coloredRoles = roles && roles.filter((r) => r.color !== 0) || [];
+    const highestColor = coloredRoles[0] && coloredRoles[0].color;
+
+    let displayNote = "None";
+    if (userNotes && userNotes.length) {
+      const note = userNotes[userNotes.length - 1];
+      displayNote = `${note.note} - [${note.created_at}] (${note.created_by_name})`;
+    }
+
+    const fields = [
+      {name: "User", value: `${user.mention} ${user.username}#${user.discriminator} ${mainGuildNickname || ""}`, inline: true},
+      {name: "Account age", value: accountAge, inline: true},
+      {name: "Member for", value: memberFor, inline: true},
+      {name: "Logs", value: `${userLogCount}`, inline: true},
+      {name: "Thread ID", value: this.id, inline: true},
+      {name: `Last note (${userNotes.length})`, value: displayNote, inline: false},
+      {name: `Roles (${roles.length})`, value: roleList, inline: false},
+    ];
+
+    await this.postSystemMessage({
+      embed: {
+        fields,
+        footer: {text: member.id},
+        timestamp: new Date(),
+        color: highestColor || 0x337FD5,
+      }
+    });
   }
 
   /**
