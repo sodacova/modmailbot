@@ -24,8 +24,8 @@ module.exports = bot => {
 
       const threadLines = await Promise.all(userThreads.map(async thread => {
         const logUrl = await thread.getLogUrl();
-        const formattedDate = moment.utc(thread.created_at).format("MMM Do YYYY [at] HH:mm [UTC]");
-        return `\`${formattedDate}\`: <${logUrl}>`;
+        const formattedDate = moment.utc(thread.created_at).format("YYYY-MM-DD HH:mm [UTC]");
+        return `\`${formattedDate}\` ${thread.scheduled_close_name}: <${logUrl}>`;
       }));
 
       if (! userThreads || ! userThreads.length) return msg.channel.createMessage("No logs found.");
