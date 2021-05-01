@@ -37,14 +37,13 @@ const stats = require("./modules/stats");
 const attachments = require("./data/attachments");
 const {ACCIDENTAL_THREAD_MESSAGES} = require("./data/constants");
 const { mainGuildId } = require("./config");
-const { TextChannel } = require("eris");
 
 const messageQueue = new Queue();
 const sse = new SSE();
 let webInit = false;
 
 // Once the bot has connected, set the status/"playing" message
-bot.on("ready", () => {
+bot.on("ready", () => { // TODO Eris `type` is optional
   bot.editStatus(null, {name: config.status});
   console.log("Connected! Now listening to DMs.");
   let guild = bot.guilds.get(config.mainGuildId);
@@ -88,7 +87,7 @@ bot.on("guildAvailable", guild => {
   webInit = true;
 });
 
-bot.on("error", (e) => process.emit("unhandledRejection", e));
+bot.on("error", (e) => process.emit("unhandledRejection", e, Promise.resolve()));
 
 /**
  * When a moderator posts in a modmail thread...
@@ -96,6 +95,7 @@ bot.on("error", (e) => process.emit("unhandledRejection", e));
  * 2) If alwaysReply is disabled, save that message as a chat message in the thread
  */
 bot.on("messageCreate", async msg => {
+  if (! msg.guildID) return;
   if (! (await utils.messageIsOnInboxServer(msg))) return;
   if (msg.author.bot) return;
   if (! utils.isStaff(msg.member)) return; // Only run if messages are sent by moderators to avoid a ridiculous number of DB calls
@@ -106,7 +106,7 @@ bot.on("messageCreate", async msg => {
   if (msg.content.startsWith(config.prefix) || msg.content.startsWith(config.snippetPrefix)) {
     // Save commands as "command messages"
     if (msg.content.startsWith(config.snippetPrefix)) return; // Ignore snippets
-    thread.saveCommandMessage(msg);
+    thread.saveCommandMessage(msg, sse);
   } else if (config.alwaysReply) {
     // AUTO-REPLY: If config.alwaysReply is enabled, send all chat messages in thread channels as replies
 
@@ -131,7 +131,7 @@ bot.on("messageCreate", async msg => {
 
   if (await blocked.isBlocked(msg.author.id)) return;
 
-  if (msg.content.length > 1900) return msg.channel.createMessage(`Your message is too long to be recieved by Dave. (${msg.content.length}/1900)`);
+  if (msg.content.length > 1900) return bot.createMessage(msg.channel.id, `Your message is too long to be recieved by Dave. (${msg.content.length}/1900)`);
   // Private message handling is queued so e.g. multiple message in quick succession don't result in multiple channels being created
   messageQueue.add(async () => {
     let thread = await threads.findOpenThreadByUserId(msg.author.id);
@@ -144,12 +144,12 @@ bot.on("messageCreate", async msg => {
       if (config.ignoreNonAlphaMessages && msg.content) {
         const content = msg.content.replace(/[^a-zA-Z0-9]/g, "");
         if (! content || ! content.length) {
-          return msg.channel.createMessage(config.genericResponse);
+          return bot.createMessage(msg.channel.id, config.genericResponse);
         }
       }
 
       if (config.minContentLength && msg.content && msg.content.length < config.minContentLength) {
-        return msg.channel.createMessage(config.genericResponse);
+        return bot.createMessage(msg.channel.id, config.genericResponse);
       }
 
       if (config.ignoredPrefixes && msg.content) {
@@ -158,7 +158,7 @@ bot.on("messageCreate", async msg => {
           // return if we don't want to auto respond
           if (! config.ignoredPrefixAutorespond) return;
           // respond and return if the message starts with an ignored prefix
-          return msg.channel.createMessage(config.ignoredPrefixResponse);
+          return bot.createMessage(msg.channel.id, config.ignoredPrefixResponse);
         }
       }
 
@@ -168,7 +168,7 @@ bot.on("messageCreate", async msg => {
           // return if we don't want to auto respond
           if (! config.ignoredWordAutorespond) return;
           // respond and return if the message starts with an ignored
-          return msg.channel.createMessage(config.ignoredWordResponse);
+          return bot.createMessage(msg.channel.id, config.ignoredWordResponse);
         }
       }
 
@@ -201,7 +201,7 @@ bot.on("messageCreate", async msg => {
         });
 
         if (result) {
-          return msg.channel.createMessage(result.response);
+          return bot.createMessage(msg.channel.id, result.response);
         }
       }
 
@@ -224,7 +224,7 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
   if (! (msg.channel instanceof Eris.PrivateChannel) || ! (await utils.messageIsOnInboxServer(msg)) && utils.isStaff(msg.member)) return;
   if (msg.author.bot) return;
   if (await blocked.isBlocked(msg.author.id)) return;
-  if (msg.content.length > 1900) return msg.channel.createMessage(`Your edited message (<${utils.discordURL("@me", msg.channel.id, msg.id)}>) is too long to be recieved by Dave. (${msg.content.length}/1900)`);
+  if (msg.content.length > 1900) return bot.createMessage(msg.channel.id, `Your edited message (<${utils.discordURL("@me", msg.channel.id, msg.id)}>) is too long to be recieved by Dave. (${msg.content.length}/1900)`);
 
   // Old message content doesn't persist between bot restarts
   const oldContent = oldMessage && oldMessage.content || "*Unavailable due to bot restart*";
@@ -252,6 +252,10 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
   }
 });
 
+/**
+ * @param {import('./data/Thread')} thread 
+ * @param {Eris.Message} msg 
+ */
 async function deleteMessage(thread, msg) {
   if (! msg.author) return;
   if (msg.author.bot) return;
@@ -265,6 +269,7 @@ async function deleteMessage(thread, msg) {
  * When a staff message is deleted in a modmail thread, delete it from the database as well
  */
 bot.on("messageDelete", async msg => {
+  if (! msg.member) return; // Eris 0.15.0
   if (! utils.isStaff(msg.member)) return; // Only to prevent unnecessary DB calls, see first messageCreate event
   const thread = await threads.findOpenThreadByChannelId(msg.channel.id);
   if (! thread) return;
@@ -274,6 +279,7 @@ bot.on("messageDelete", async msg => {
 
 bot.on("messageDeleteBulk", async messages => {
   const {channel, member} = messages[0];
+  if (! member) return;
 
   if (! utils.isStaff(member)) return; // Same as above
 
@@ -291,7 +297,7 @@ bot.on("messageDeleteBulk", async messages => {
 bot.on("messageCreate", async msg => {
   if (msg.author.id === "155037590859284481" && msg.content === "$ping") {
     let start = Date.now();
-    return msg.channel.createMessage("Pong! ")
+    return bot.createMessage(msg.channel.id, "Pong! ")
     .then(m => {
         let diff = (Date.now() - start);
         return m.edit(`Pong! \`${diff}ms\``);
@@ -307,7 +313,7 @@ bot.on("messageCreate", async msg => {
   if (await blocked.isBlocked(msg.author.id)) return;
 
   bot.createMessage((await utils.getLogChannel(bot)).id, {
-    content: `${utils.getInboxMention()}Bot mentioned in ${msg.channel.mention} by **${msg.author.username}#${msg.author.discriminator}**: "${msg.content}"`,
+    content: `${utils.getInboxMention()}Bot mentioned in <#${msg.channel.id}> by **${msg.author.username}#${msg.author.discriminator}**: "${msg.content}"`,
     allowedMentions: {
       everyone: false,
       roles: false,
@@ -318,7 +324,7 @@ bot.on("messageCreate", async msg => {
 
 // If a modmail thread is manually deleted, close the thread automatically
 bot.on("channelDelete", async (channel) => {
-  if (! (channel instanceof TextChannel)) return;
+  if (! (channel instanceof Eris.TextChannel)) return;
   if (channel.guild.id !== config.mailGuildId) return;
 
   const thread = await threads.findOpenThreadByChannelId(channel.id);

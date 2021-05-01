@@ -33,7 +33,8 @@ class Thread {
   }
 
   /**
-   * @param {Eris.Message} msg
+   * @param {Eris.Member} moderator
+   * @param {String} text
    * @param {Eris.Attachment[]} [replyAttachments=[]]
    * @param {Boolean} [isAnonymous=false]
    * @param {SSE} [sse]
@@ -210,7 +211,10 @@ class Thread {
     }
 
     const threadMessage = await this.postToThreadChannel(threadContent, attachmentFiles);
-    if (! threadMessage) return msg.channel.createMessage("The current thread was automatically closed due to an internal error. Please send another message to open a new thread.");
+    if (! threadMessage) {
+      await bot.createMessage(msg.channel.id, "The current thread was automatically closed due to an internal error. Please send another message to open a new thread.");
+      return;
+    }
 
     await this.addThreadMessageToDB({
       message_type: THREAD_MESSAGE_TYPE.FROM_USER,
@@ -253,7 +257,7 @@ class Thread {
   }
 
   /**
-   * @param {String} text
+   * @param {Eris.MessageContent} text
    * @param {Eris.MessageFile|Eris.MessageFile[]} [file=null]
    * @returns {Promise<Eris.Message<Eris.PrivateChannel>>}
    * @throws Error

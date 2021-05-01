@@ -15,7 +15,7 @@ module.exports = bot => {
      */
     async function block(user) {
       await blocked.block(user.id, `${user.username}#${user.discriminator}`, msg.author.id);
-      msg.channel.createMessage(`Blocked <@${user.id}> (id ${user.id}) from modmail`);
+      bot.createMessage(msg.channel.id, `Blocked <@${user.id}> (id ${user.id}) from modmail`);
     }
 
     let logText = "**Blocked:** ";
@@ -70,7 +70,7 @@ module.exports = bot => {
   threadUtils.addInboxServerCommand(bot, "unblock", async (msg, args, thread) => {
     async function unblock(userId) {
       await blocked.unblock(userId);
-      msg.channel.createMessage(`Unblocked <@${userId}> (id ${userId}) from modmail`);
+      bot.createMessage(msg.channel.id, `Unblocked <@${userId}> (id ${userId}) from modmail`);
     }
 
     let logText = "**Unblocked:** ";

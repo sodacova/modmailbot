@@ -35,7 +35,6 @@ async function getMainGuild() {
 
 /**
  * Returns the designated log channel, or the default channel if none is set
- * @param bot
  * @returns {Promise<Eris.TextChannel>}
  */
 async function getLogChannel() {
@@ -63,12 +62,13 @@ function postLog(...args) {
 function postError(str) {
   getLogChannel().then(c => c.createMessage({
     content: `${getInboxMention()}**Error:** ${str.trim()}`,
-    disableEveryone: false
+    allowedMentions: {
+      everyone: false
+    }
   }));
 }
 
 function handleError(error) {
-  if (! bot.token.startsWith("Bot ")) bot.token = "Bot " + bot.token;
   if (! config.errorWebhookId || ! config.errorWebhookToken) {
     getLogChannel().then(c => c.createMessage("**Error:**\n"
     + `\`\`\`js\n${error.stack}\n\`\`\``));
@@ -96,23 +96,23 @@ function isStaff(member) {
 
 /**
  * Returns whether the given message is on the inbox server
- * @param msg
+ * @param {Eris.Message} msg
  * @returns {Promise<boolean>}
  */
 async function messageIsOnInboxServer(msg) {
-  if (! msg.channel.guild) return false;
-  if (msg.channel.guild.id !== (await getInboxGuild()).id) return false;
+  if (! msg.guildID) return false;
+  if (msg.guildID !== (await getInboxGuild()).id) return false;
   return true;
 }
 
 /**
  * Returns whether the given message is on the main server
- * @param msg
+ * @param {Eris.Message} msg
  * @returns {Promise<boolean>}
  */
 async function messageIsOnMainServer(msg) {
-  if (! msg.channel.guild) return false;
-  if (msg.channel.guild.id !== (await getMainGuild()).id) return false;
+  if (! msg.guildID) return false;
+  if (msg.guildID !== (await getMainGuild()).id) return false;
   return true;
 }
 
@@ -256,11 +256,17 @@ function getInboxMention() {
   else return `<@&${config.mentionRole}> `;
 }
 
+/**
+ * 
+ * @param {Eris.GuildTextableChannel} channel 
+ * @param {import('./data/Thread')} thread 
+ * @param {Eris.MessageContent} text 
+ */
 function postSystemMessageWithFallback(channel, thread, text) {
   if (thread) {
     thread.postSystemMessage(text);
   } else {
-    channel.createMessage(text);
+    bot.createMessage(channel.id, text);
   }
 }
 

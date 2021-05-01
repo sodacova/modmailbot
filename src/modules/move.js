@@ -30,8 +30,7 @@ module.exports = bot => {
     if (! overwrites) return;
     for (let o of overwrites.values()) {
       if (o.id === channel.guild.id) continue;
-      // @ts-ignore #993
-      channel.editPermission(o.id, o.allow || null, o.deny || null, o.type, "Moving modmail thread.");
+      channel.editPermission(o.id, o.allow, o.deny, o.type, "Moving modmail thread.");
     }
   }
 
@@ -48,7 +47,7 @@ module.exports = bot => {
     /**
      * @type {Eris.CategoryChannel[]}
      */
-    const categories = msg.channel.guild.channels.filter(c => {
+    const categories = bot.guilds.get(msg.guildID).channels.filter(c => {
       if (config.allowedCategories && config.allowedCategories.length) {
         if (config.allowedCategories.find(id => id === c.id)) {
           return true;
@@ -99,7 +98,7 @@ module.exports = bot => {
     /**
      * @type {Eris.GuildTextableChannel}
      */
-    const threadChannel = msg.channel.guild.channels.get(thread.channel_id);
+    const threadChannel = bot.guilds.get(msg.guildID).channels.get(thread.channel_id);
 
     await clearThreadOverwrites(threadChannel);
 

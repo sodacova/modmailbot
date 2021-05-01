@@ -46,6 +46,6 @@ module.exports = bot => {
       response += ` (${commitHash.slice(0, 7)})`;
     }
 
-    msg.channel.createMessage(response);
+    bot.createMessage(msg.channel.id, response);
   });
 };

@@ -21,7 +21,7 @@ module.exports = bot => {
         isAnonymous = true;
       }
 
-      const resolvedTag = await tags.getTag(msg.channel.guild.id, tag);
+      const resolvedTag = await tags.getTag(msg.guildID, tag);
       if (! resolvedTag) return;
 
       await thread.replyToUser(msg.member, resolvedTag.content, [], isAnonymous);

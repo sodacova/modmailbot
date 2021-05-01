@@ -28,7 +28,7 @@ module.exports = bot => {
         return `\`${formattedDate}\` ${thread.scheduled_close_name}: <${logUrl}>`;
       }));
 
-      if (! userThreads || ! userThreads.length) return msg.channel.createMessage("No logs found.");
+      if (! userThreads || ! userThreads.length) return bot.createMessage(msg.channel.id, "No logs found.");
 
       const message = `**Log files for <@${userId}>:**\n${threadLines.join("\n")}`;
 
@@ -41,7 +41,7 @@ module.exports = bot => {
        */
       let root = Promise.resolve();
       chunks.forEach(lines => {
-        root = root.then(() => msg.channel.createMessage(lines.join("\n")));
+        root = root.then(() => bot.createMessage(msg.channel.id, lines.join("\n")));
       });
     }
 
@@ -50,7 +50,7 @@ module.exports = bot => {
      */
     async function deleteLogs(userId) {
       await threads.deleteClosedThreadsByUserId(userId);
-      msg.channel.createMessage(`Deleted log files for <@!${userId}>`);
+      bot.createMessage(msg.channel.id, `Deleted log files for <@!${userId}>`);
     }
 
     if (args.length > 0) {
