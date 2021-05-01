@@ -91,7 +91,7 @@ async function createNewThreadForUser(user, quiet = false) {
     }
   }
   
-  await newThread.sendThreadInfo();
+  await newThread.sendThreadInfo().catch((e) => process.emit("unhandledRejection", e));
 
   // Return the thread
   return newThread;
