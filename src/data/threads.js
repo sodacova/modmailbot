@@ -7,7 +7,6 @@ const knex = require("../knex");
 const config = require("../config");
 const utils = require("../utils");
 
-const Thread = require("./Thread");
 const { THREAD_STATUS } = require("./constants");
 
 /**
@@ -217,3 +216,5 @@ module.exports = {
   createThreadInDB,
   getClosedThreadCountByUserId,
 };
+
+const Thread = require("./Thread");
