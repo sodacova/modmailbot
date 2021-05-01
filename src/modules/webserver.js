@@ -6,7 +6,6 @@ const mime = require("mime");
 const fs = require("fs");
 const https = require("https");
 const path = require("path");
-const superagent = require("superagent");
 const config = require("../config");
 const oauth2 = require("../oauth2");
 const threads = require("../data/threads");
@@ -131,39 +130,20 @@ module.exports = (bot, sse) => {
     res.json(logs);
   });
   app.get("/avatars/:id", async (req, res) => {
-    superagent.get(`https://discord.com/api/users/${req.params.id}`)
-    .set("Authorization", bot.token)
-    .end((error, response) => {
-      if (error) {
-        if (error.status === 404) {
-          res.status(400);
-          res.send("<pre>400 Bad Request</pre>");
-        } else {
-          res.status(500);
-          console.log(error);  
-          res.send(`<pre>500 Server Error: ${error}</pre>`);
-        }
+    const user = bot.users.get(req.params.id) || await bot.getRESTUser(req.params.id).catch(
+      /** @param {import('eris').DiscordRESTError | import('eris').DiscordHTTPError} e */
+      (e) => {
+      if (e.code === 404 || e.code === 10013) {
+        res.status(400).send("<pre>400 Bad Request</pre>");
       } else {
-        res.set("Cache-Control", "max-age=3600");
-        let user = response.body;
-        if (user.avatar) {
-          let format = req.query.format || "png";
-          if (format === "gif" && ! user.avatar.startsWith("a_"))
-            format = "png";
-          res.redirect(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.${format}`);
-        } else {
-          let defaultAvatars = [
-            "6debd47ed13483642cf09e832ed0bc1b",
-            "322c936a8c8be1b803cd94861bdfa868",
-            "dd4dbc0016779df1378e7812eabaa04d",
-            "0e291f67c9274a1abdddeb3fd919cbaa",
-            "1cbd08c76f8af6dddce02c5138971129"
-          ];
-          let avatar = defaultAvatars[user.discriminator % defaultAvatars.length];
-          res.redirect(`https://discord.com/assets/${avatar}.png`);
-        }
+        process.emit("unhandledRejection", e);
+        res.status(500).send(`<pre>500 Server Error: ${e}</pre>`);
       }
-    }); 
+      return null;
+    });
+    if (! user) return;
+
+    res.set("Cache-Control", "max-age=3600").redirect(user.avatarURL);
   });
   
   app.get("/stream", sse.init);
