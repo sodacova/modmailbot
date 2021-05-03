@@ -336,7 +336,7 @@ class Thread {
       notes.get(user.id),
     ]);
 
-    const mainGuildNickname = member && `(${member.nick})` || "";
+    const mainGuildNickname = member && member.nick && `(${member.nick})`;
 
     const accountAge = humanizeDuration(now - user.createdAt, {largest: 2});
     const memberFor = member ? humanizeDuration(now - member.joinedAt, {largest: 2}) : "UNAVAILABLE";
@@ -362,6 +362,7 @@ class Thread {
     ];
 
     await this.postSystemMessage({
+      content: user.mention,
       embed: {
         fields,
         footer: {text: member.id},
