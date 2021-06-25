@@ -85,13 +85,13 @@ function handleError(error) {
 
 /**
  * Returns whether the given member has permission to use modmail commands
- * @param member
+ * @param {Eris.Member} member
  * @returns {boolean}
  */
 function isStaff(member) {
-  if (! config.inboxServerPermission) return true;
+  if (! config.inboxServerRoleIDs.length) return true;
   if (! member) return false;
-  return member.permissions.has(config.inboxServerPermission);
+  return member.roles.some((r) => config.inboxServerRoleIDs.includes(r));
 }
 
 /**
