@@ -205,7 +205,16 @@ bot.on("messageCreate", async msg => {
         }
       }
 
-      thread = await threads.createNewThreadForUser(msg.author);
+      try {
+        thread = await threads.createNewThreadForUser(msg.author);
+      } catch (error) {
+        if (error.code === 50035 && error.message.includes("words not allowed")) {
+          utils.postLog(`Tried to open a thread with ${msg.author.username}#${msg.author.discriminator} (${msg.author.id}) but failed due to a restriction on channel names for servers in Server Discovery`);
+          return msg.channel.createMessage("Thread was unable to be opened - please change your username and try again!");
+        }
+        utils.postLog(`**Error:** \`\`\`js\nError creating modmail channel for ${msg.author.username}#${msg.author.discriminator}!\n${error.stack}`);
+        return msg.channel.createMessage("Thread was unable to be opened due to an unknown error. If this persists, please contact a member of the staff team!");
+      }
 
       sse.send({ thread }, "threadOpen");
     }
