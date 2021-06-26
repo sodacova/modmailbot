@@ -1,5 +1,6 @@
 const Eris = require("eris");
 const config = require("./config");
+const utils = require("./utils");
 
 const bot = new Eris.CommandClient("Bot " + config.token, {
   getAllUsers: true,
@@ -17,6 +18,10 @@ const bot = new Eris.CommandClient("Bot " + config.token, {
   defaultHelpCommand: false,
   defaultCommandOptions: {
     caseInsensitive: true,
+    errorMessage: (msg, err) => {
+      utils.handleError(err);
+      msg.channel.createMessage("The command failed! See the logs channel for further information").catch(() => null);
+    }
   },
   argsSplitter: (str) => str.split(" ")
 });
