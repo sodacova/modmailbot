@@ -357,7 +357,7 @@ class Thread {
       {name: "Thread ID", value: this.id, inline: true},
       {name: "Logs", value: `${userLogCount}`, inline: true},
       {name: `Last note (${userNotes.length})`, value: displayNote, inline: false},
-      {name: `Roles (${roles.length})`, value: roleList, inline: false},
+      {name: `Roles (${roles && roles.length || 0})`, value: roleList, inline: false},
     ];
 
     await this.postSystemMessage({
