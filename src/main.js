@@ -9,6 +9,8 @@ const blocked = require("./data/blocked");
 const threads = require("./data/threads");
 
 const reply = require("./modules/reply");
+const alert = require("./modules/alert");
+const role = require("./modules/role");
 const purge = require("./modules/purge");
 const tags = require("./modules/tags");
 const command = require("./modules/command");
@@ -262,8 +264,8 @@ bot.on("messageUpdate", async (msg, oldMessage) => {
 });
 
 /**
- * @param {import('./data/Thread')} thread 
- * @param {Eris.Message} msg 
+ * @param {import('./data/Thread')} thread
+ * @param {Eris.Message} msg
  */
 async function deleteMessage(thread, msg) {
   if (! msg.author) return;
@@ -339,7 +341,7 @@ bot.on("channelDelete", async (channel) => {
   const thread = await threads.findOpenThreadByChannelId(channel.id);
   if (thread) {
     await thread.close(bot.user, false, sse);
-    
+
     const logUrl = await thread.getLogUrl();
     utils.postLog(
       utils.trimAll(`Modmail thread with ${thread.user_name} (${thread.user_id}) was closed due to channel deletion
@@ -357,6 +359,8 @@ module.exports = {
     // Load modules
     console.log("Loading modules...");
     reply(bot, sse);
+    alert(bot);
+    role(bot);
     purge(bot);
     tags(bot);
     command(bot);
